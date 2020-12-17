@@ -86,8 +86,13 @@ public class PixelsToKeys extends JFrame {
 
 		public void performIfChanged(char[] newState, Robot robot) {
 			char cur = newState[this.idx];
-			if (cur > prvState) robot.keyPress(this.keycode);
-			else if (cur < prvState) robot.keyRelease(this.keycode);
+			try {
+				if (cur > prvState) robot.keyPress(this.keycode);
+				else if (cur < prvState) robot.keyRelease(this.keycode);
+			} catch (Exception e) {
+				spLog(e.toString());
+				e.printStackTrace();
+			}
 			prvState = cur;
 		}
 	}
@@ -112,61 +117,66 @@ public class PixelsToKeys extends JFrame {
 
 		public void performIfChanged(char[] newState, Robot robot) {
 			char cur = newState[this.idx];
-			switch (this.keycode) {
-			case 1: // VM_BTN_LEFT
-				if (cur > prvState) robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-				else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-				break;
-			case 2: // VM_BTN_MIDDLE
-				if (cur > prvState) robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
-				else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
-				break;
-			case 3: // VM_BTN_RIGHT
-				if (cur > prvState) robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-				else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-				break;
-			case 4: // VM_WHEEL_UP
-				if (cur > prvState) robot.mouseWheel(1); // set this to a timer like movement
-				else if (cur < prvState) robot.mouseWheel(0);
-				break;
-			case 5: // VM_WHEEL_DOWN
-				if (cur > prvState) robot.mouseWheel(-1); // set this to a timer like movement
-				else if (cur < prvState) robot.mouseWheel(0);
-				break;
-			case 6: // VM_MOVE_UP
-				if (cur > prvState) mouseSpeedUp = 1;
-				else if (cur < prvState) mouseSpeedUp = 0;
-				break;
-			case 7: // VM_MOVE_DOWN
-				if (cur > prvState) mouseSpeedDown = 1;
-				else if (cur < prvState) mouseSpeedDown = 0;
-				break;
-			case 8: // VM_MOVE_LEFT
-				if (cur > prvState) mouseSpeedLeft = 1;
-				else if (cur < prvState) mouseSpeedLeft = 0;
-				break;
-			case 9: // VM_MOVE_RIGHT
-				if (cur > prvState) mouseSpeedRight = 1;
-				else if (cur < prvState) mouseSpeedRight = 0;
-				break;
-
-			case 10: // VM_MOVE_10_UP
-				if (cur > prvState) mouseSpeedUp = 10;
-				else if (cur < prvState) mouseSpeedUp = 0;
-				break;
-			case 11: // VM_MOVE_10_DOWN
-				if (cur > prvState) mouseSpeedDown = 10;
-				else if (cur < prvState) mouseSpeedDown = 0;
-				break;
-			case 12: // VM_MOVE_10_LEFT
-				if (cur > prvState) mouseSpeedLeft = 10;
-				else if (cur < prvState) mouseSpeedLeft = 0;
-				break;
-			case 13: // VM_MOVE_10_RIGHT
-				if (cur > prvState) mouseSpeedRight = 10;
-				else if (cur < prvState) mouseSpeedRight = 0;
-				break;
-}
+			try {
+				switch (this.keycode) {
+				case 1: // VM_BTN_LEFT
+					if (cur > prvState) robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+					else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+					break;
+				case 2: // VM_BTN_MIDDLE
+					if (cur > prvState) robot.mousePress(InputEvent.BUTTON2_DOWN_MASK);
+					else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
+					break;
+				case 3: // VM_BTN_RIGHT
+					if (cur > prvState) robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+					else if (cur < prvState) robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+					break;
+				case 4: // VM_WHEEL_UP
+					if (cur > prvState) robot.mouseWheel(1); // set this to a timer like movement
+					else if (cur < prvState) robot.mouseWheel(0);
+					break;
+				case 5: // VM_WHEEL_DOWN
+					if (cur > prvState) robot.mouseWheel(-1); // set this to a timer like movement
+					else if (cur < prvState) robot.mouseWheel(0);
+					break;
+				case 6: // VM_MOVE_UP
+					if (cur > prvState) mouseSpeedUp = 1;
+					else if (cur < prvState) mouseSpeedUp = 0;
+					break;
+				case 7: // VM_MOVE_DOWN
+					if (cur > prvState) mouseSpeedDown = 1;
+					else if (cur < prvState) mouseSpeedDown = 0;
+					break;
+				case 8: // VM_MOVE_LEFT
+					if (cur > prvState) mouseSpeedLeft = 1;
+					else if (cur < prvState) mouseSpeedLeft = 0;
+					break;
+				case 9: // VM_MOVE_RIGHT
+					if (cur > prvState) mouseSpeedRight = 1;
+					else if (cur < prvState) mouseSpeedRight = 0;
+					break;
+				case 10: // VM_MOVE_10_UP
+					if (cur > prvState) mouseSpeedUp = 10;
+					else if (cur < prvState) mouseSpeedUp = 0;
+					break;
+				case 11: // VM_MOVE_10_DOWN
+					if (cur > prvState) mouseSpeedDown = 10;
+					else if (cur < prvState) mouseSpeedDown = 0;
+					break;
+				case 12: // VM_MOVE_10_LEFT
+					if (cur > prvState) mouseSpeedLeft = 10;
+					else if (cur < prvState) mouseSpeedLeft = 0;
+					break;
+				case 13: // VM_MOVE_10_RIGHT
+					if (cur > prvState) mouseSpeedRight = 10;
+					else if (cur < prvState) mouseSpeedRight = 0;
+					break;
+				}
+			} catch (Exception e) {
+				spLog(e.toString());
+				e.printStackTrace();
+			}
+			prvState = cur;
 		}
 	}
 
@@ -362,7 +372,7 @@ public class PixelsToKeys extends JFrame {
 			tMouseMapEntries.add(new MouseMapEntry(124, 12, "VM_MOVE_10_LEFT"));
 			tMouseMapEntries.add(new MouseMapEntry(125, 13, "VM_MOVE_10_RIGHT"));
 
-}
+		}
 	}
 
 	static Runnable taskPressKeys = () -> {
