@@ -459,6 +459,21 @@ public class PixelsToKeys extends JFrame {
 						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
 						txt += "\t" + "px1Bin:" + curPxBinString;
 						char[] aCurPx = curPxBinString.toCharArray();
+						{
+							int cntKeysSet = 0;
+							for (char c : aCurPx)
+								if (c == PRESSED) cntKeysSet++;
+							if (cntKeysSet > 5) { // release all
+								spLog("cntKeysSet:"+cntKeysSet+". exiting");
+								tKeyMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
+								tMouseMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
+								robot.keyPress(KeyEvent.VK_WINDOWS);
+								robot.delay(100);
+								robot.keyRelease(KeyEvent.VK_WINDOWS);
+								
+								break;
+							}
+						}
 						for (KeyMapEntry pme : tKeyMapEntries) {
 							txt += pme.reportIfChanged(aCurPx);
 							pme.performIfChanged(aCurPx, robot);
