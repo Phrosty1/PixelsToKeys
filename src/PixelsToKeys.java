@@ -21,6 +21,12 @@ import javax.swing.border.*;
 //import static liblaughlog.Utils.Log.*;
 
 public class PixelsToKeys extends JFrame {
+	static int constantPixel = getHexColorToInt("0x010203");
+	static int constantEndPixel = getHexColorToInt("0x030201");
+	static int constantLocX = 0, constantLocY = 7;
+	static ArrayList<KeyMapEntry> tKeyMapEntries = new ArrayList<>();
+	static ArrayList<MouseMapEntry> tMouseMapEntries = new ArrayList<>();
+
 	int prefWidth = 300, prefHeight = 50;
 	Font prefFont = new Font("Comic Sans MS", Font.BOLD, 20);
 	//static String prvPxString = "", curPxString = prvPxString;
@@ -28,6 +34,20 @@ public class PixelsToKeys extends JFrame {
 	static int mouseSpeedUp = 0, mouseSpeedDown = 0, mouseSpeedLeft = 0, mouseSpeedRight = 0;
 	static int loopMinTime = 15;
 	static final char RELEASED = "0".charAt(0), PRESSED = "1".charAt(0);
+
+	private static void releaseAll() {
+		try {
+			final char[] aCharAllReleased = new char[200]; // or 1 + max idx watched in tMouseMapEntries
+			for (int i = 0; i < aCharAllReleased.length; i++)
+				aCharAllReleased[i] = RELEASED;
+			Robot robot = new Robot();
+			tKeyMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
+			tMouseMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
+		} catch (Exception e) {
+			spLog(e.toString());
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String args[]) {
 
@@ -107,11 +127,6 @@ public class PixelsToKeys extends JFrame {
 		new Thread(taskMouseMove).start();
 		spLog("end thread call");
 	}
-
-	static int constantPixel = 0;
-	static int constantLocX = 0, constantLocY = 5;
-	static ArrayList<KeyMapEntry> tKeyMapEntries = new ArrayList<>();
-	static ArrayList<MouseMapEntry> tMouseMapEntries = new ArrayList<>();
 
 	static private class KeyMapEntry {
 		private final int idx, keycode;
@@ -242,6 +257,12 @@ public class PixelsToKeys extends JFrame {
 		return new StringBuilder().append("(").append(mouseLoc.x).append(",").append(mouseLoc.y).append(")").toString();
 	}
 
+	private static int getHexColorToInt(String color) {
+		String val = color;
+		if (val.length() > 6) val = val.substring(val.length() - 6);
+		return Integer.parseUnsignedInt("ff" + val, 16);
+	}
+
 	private static void loadKeyMap() {
 		// ConstantPixel = 0x010203
 		// ConstantLocX = 0
@@ -265,8 +286,9 @@ public class PixelsToKeys extends JFrame {
 						if (line.toUpperCase().trim().startsWith("ConstantPixel".toUpperCase())) {
 							String val = line.substring(line.indexOf("=") + 1).trim();
 							val = getRegSubstr(val, "(\\w+)"); // word
-							if (val.length() > 6) val = val.substring(val.length() - 6);
-							constantPixel = Integer.parseUnsignedInt("ff" + val, 16);
+							//if (val.length() > 6) val = val.substring(val.length() - 6);
+							//constantPixel = Integer.parseUnsignedInt("ff" + val, 16);
+							constantPixel = getHexColorToInt(val);
 							spLog("ConstantPixel=" + constantPixel);
 						} else if (line.toUpperCase().trim().startsWith("ConstantLocX".toUpperCase())) {
 							String val = line.substring(line.indexOf("=") + 1).trim();
@@ -428,55 +450,78 @@ public class PixelsToKeys extends JFrame {
 			Robot robot = new Robot();
 			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
 			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
-			int rgb0 = tmpcap.getRGB(0, 0);
-			//			long extralogtime = 0; // remove
+			int prvRGB0 = tmpcap.getRGB(0, 0);
+			int prvRGB1 = tmpcap.getRGB(1, 0);
+			int prvRGB2 = tmpcap.getRGB(2, 0);
+			int prvRGB3 = tmpcap.getRGB(3, 0);
+			int prvRGB4 = tmpcap.getRGB(4, 0);
+			int prvRGB5 = tmpcap.getRGB(5, 0);
+			int prvRGB6 = tmpcap.getRGB(6, 0);
+			int prvRGB7 = tmpcap.getRGB(7, 0);
+			int cntConsistent = 0;
+			//long extralogtime = 0; // remove
 			String txt = "";
 			String curPxBinString = "", prvPxBinString = curPxBinString;
-			final char[] aCharAllReleased = new char[200]; // or 1 + max idx watched in tMouseMapEntries
-			for (int i = 0; i < aCharAllReleased.length; i++)
-				aCharAllReleased[i] = RELEASED;
+			ArrayList<String> tPreviousInds = new ArrayList<>();
 			while (true) {
 				cycleBeginTime = System.currentTimeMillis();
 				tmpcap = robot.createScreenCapture(rect);
-				rgb0 = tmpcap.getRGB(0, 0);
+				int rgb0 = tmpcap.getRGB(0, 0);
+				int rgb1 = tmpcap.getRGB(1, 0);
+				int rgb2 = tmpcap.getRGB(2, 0);
+				int rgb3 = tmpcap.getRGB(3, 0);
+				int rgb4 = tmpcap.getRGB(4, 0);
+				int rgb5 = tmpcap.getRGB(5, 0);
+				int rgb6 = tmpcap.getRGB(6, 0);
+				int rgb7 = tmpcap.getRGB(7, 0);
+				curPxBinString = Integer.toBinaryString(rgb1).substring(8)//
+						+ Integer.toBinaryString(rgb2).substring(8)//
+						+ Integer.toBinaryString(rgb3).substring(8)//
+						+ Integer.toBinaryString(rgb4).substring(8)//
+						+ Integer.toBinaryString(rgb5).substring(8)//
+						+ Integer.toBinaryString(rgb6).substring(8);
+				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
+				while (tPreviousInds.size() > 10)
+					tPreviousInds.remove(0);
 				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
-				if (rgb0 == constantPixel) {
-					//					if (cycleBeginTime > extralogtime) { // remove
-					//						spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + " rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:"
-					//								+ Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
-					//						spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
-					//						extralogtime = System.currentTimeMillis() + 500;
-					//					}
-
-					curPxBinString = Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8)//
-							+ Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8)//
-							+ Integer.toBinaryString(tmpcap.getRGB(3, 0)).substring(8)//
-							+ Integer.toBinaryString(tmpcap.getRGB(4, 0)).substring(8)//
-							+ Integer.toBinaryString(tmpcap.getRGB(5, 0)).substring(8)//
-							+ Integer.toBinaryString(tmpcap.getRGB(6, 0)).substring(8);
+				if (rgb0 == constantPixel & rgb7 == constantEndPixel) {
+					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
+				} else cntConsistent = 0;
+				if (rgb0 == constantPixel & rgb7 == constantEndPixel & cntConsistent > 10) {
+					//if (cycleBeginTime > extralogtime) { // remove
+					//	spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
+					//			"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
+					//			" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
+					//	spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
+					//	extralogtime = System.currentTimeMillis() + 500;
+					//}
 					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
 					if (!curPxBinString.equals(prvPxBinString)) {
 						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
+						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
 						txt += "\t" + "px1Bin:" + curPxBinString;
 						char[] aCurPx = curPxBinString.toCharArray();
 						{
 							int cntKeysSet = 0;
 							for (char c : aCurPx)
 								if (c == PRESSED) cntKeysSet++;
-							if (cntKeysSet > 5) { // release all
-								spLog("cntKeysSet:"+cntKeysSet+". exiting");
-								tKeyMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
-								tMouseMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
-								robot.keyPress(KeyEvent.VK_WINDOWS);
-								robot.delay(100);
-								robot.keyRelease(KeyEvent.VK_WINDOWS);
-								
-								break;
+							if (cntKeysSet > 5) {
+								spLog("cntKeysSet:" + cntKeysSet + ". exiting");
+								releaseAll();
+								for (String prvTxt : tPreviousInds)
+									spLogd(prvTxt);
+								return;
 							}
 						}
 						for (KeyMapEntry pme : tKeyMapEntries) {
 							txt += pme.reportIfChanged(aCurPx);
 							pme.performIfChanged(aCurPx, robot);
+							//	{
+							//		char cur = aCurPx[pme.idx];
+							//		if (pme.prvState == RELEASED & cur == PRESSED) robot.keyPress(pme.keycode);
+							//		else if (pme.prvState == PRESSED & cur == RELEASED) robot.keyRelease(pme.keycode);
+							//		pme.prvState = cur;
+							//	}
 							pme.prvState = aCurPx[pme.idx];
 						}
 						for (MouseMapEntry pme : tMouseMapEntries) {
@@ -491,9 +536,7 @@ public class PixelsToKeys extends JFrame {
 					}
 
 				} else {
-					//spLog("release all");
-					tKeyMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
-					tMouseMapEntries.forEach(pme -> pme.performIfChanged(aCharAllReleased, robot));
+					releaseAll();
 				}
 				cycleEndTime = System.currentTimeMillis();
 				cycleTotTime = cycleEndTime - cycleBeginTime;
