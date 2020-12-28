@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,9 +25,10 @@ import javax.swing.border.*;
 public class PixelsToKeys extends JFrame {
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
-	static int constantLocX = 0, constantLocY = 7;
+	static int constantLocX = 3, constantLocY = 0, cntDataPixels = 6; // constantPixel,data1,data2,data3,data4,data5,data6,constantEndPixel
 	static ArrayList<KeyMapEntry> tKeyMapEntries = new ArrayList<>();
 	static ArrayList<MouseMapEntry> tMouseMapEntries = new ArrayList<>();
+	static ArrayList<Integer> tUnknownMapEntries = new ArrayList<>();
 
 	int prefWidth = 300, prefHeight = 50;
 	Font prefFont = new Font("Comic Sans MS", Font.BOLD, 20);
@@ -134,7 +137,7 @@ public class PixelsToKeys extends JFrame {
 		public char prvState = RELEASED; // "0".charAt(0);
 
 		public KeyMapEntry(int idx, int cmd, String cmdName) {
-			this.idx = idx - 1;
+			this.idx = idx;
 			this.keycode = cmd;
 			this.cmdName = cmdName;
 		}
@@ -152,7 +155,8 @@ public class PixelsToKeys extends JFrame {
 				if (prvState == RELEASED & cur == PRESSED) robot.keyPress(this.keycode);
 				else if (prvState == PRESSED & cur == RELEASED) robot.keyRelease(this.keycode);
 			} catch (Exception e) {
-				spLog(e.toString());
+				//spLog(e.toString());//532144) java.lang.IllegalArgumentException: Invalid key code
+				spLog(e.toString() + " - idx:" + this.idx + " cmdName:" + this.cmdName);
 				e.printStackTrace();
 			}
 			prvState = cur;
@@ -165,7 +169,7 @@ public class PixelsToKeys extends JFrame {
 		public char prvState = RELEASED; // "0".charAt(0);
 
 		public MouseMapEntry(int idx, int cmd, String cmdName) {
-			this.idx = idx - 1;
+			this.idx = idx;
 			this.keycode = cmd;
 			this.cmdName = cmdName;
 		}
@@ -236,7 +240,8 @@ public class PixelsToKeys extends JFrame {
 					break;
 				}
 			} catch (Exception e) {
-				spLog(e.toString());
+				//spLog(e.toString());//532144) java.lang.IllegalArgumentException: Invalid key code
+				spLog(e.toString() + " - idx:" + this.idx + " cmdName:" + this.cmdName);
 				e.printStackTrace();
 			}
 			prvState = cur;
@@ -315,133 +320,152 @@ public class PixelsToKeys extends JFrame {
 		}
 		tKeyMapEntries.clear();
 		tMouseMapEntries.clear();
+		tUnknownMapEntries.clear();
 		{
-			tKeyMapEntries.add(new KeyMapEntry(1, KeyEvent.VK_BACK_SPACE, "VK_BACK_SPACE"));
-			tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_TAB, "VK_TAB"));
-			tKeyMapEntries.add(new KeyMapEntry(3, KeyEvent.VK_ENTER, "VK_ENTER"));
-			tKeyMapEntries.add(new KeyMapEntry(4, KeyEvent.VK_CLEAR, "VK_CLEAR"));
-			tKeyMapEntries.add(new KeyMapEntry(5, KeyEvent.VK_SHIFT, "VK_SHIFT"));
-			tKeyMapEntries.add(new KeyMapEntry(6, KeyEvent.VK_CONTROL, "VK_CONTROL"));
-			tKeyMapEntries.add(new KeyMapEntry(7, KeyEvent.VK_ALT, "VK_ALT"));
-			tKeyMapEntries.add(new KeyMapEntry(8, KeyEvent.VK_PAUSE, "VK_PAUSE"));
-			tKeyMapEntries.add(new KeyMapEntry(9, KeyEvent.VK_CAPS_LOCK, "VK_CAPS_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(10, KeyEvent.VK_ESCAPE, "VK_ESCAPE"));
-			tKeyMapEntries.add(new KeyMapEntry(11, KeyEvent.VK_SPACE, "VK_SPACE"));
-			tKeyMapEntries.add(new KeyMapEntry(12, KeyEvent.VK_PAGE_UP, "VK_PAGE_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(13, KeyEvent.VK_PAGE_DOWN, "VK_PAGE_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(14, KeyEvent.VK_END, "VK_END"));
-			tKeyMapEntries.add(new KeyMapEntry(15, KeyEvent.VK_HOME, "VK_HOME"));
-			tKeyMapEntries.add(new KeyMapEntry(16, KeyEvent.VK_LEFT, "VK_LEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(17, KeyEvent.VK_UP, "VK_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(18, KeyEvent.VK_RIGHT, "VK_RIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(19, KeyEvent.VK_DOWN, "VK_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(20, KeyEvent.VK_COMMA, "VK_COMMA"));
-			tKeyMapEntries.add(new KeyMapEntry(21, KeyEvent.VK_MINUS, "VK_MINUS"));
-			tKeyMapEntries.add(new KeyMapEntry(22, KeyEvent.VK_PERIOD, "VK_PERIOD"));
-			tKeyMapEntries.add(new KeyMapEntry(23, KeyEvent.VK_SLASH, "VK_SLASH"));
-			tKeyMapEntries.add(new KeyMapEntry(24, KeyEvent.VK_0, "VK_0"));
-			tKeyMapEntries.add(new KeyMapEntry(25, KeyEvent.VK_1, "VK_1"));
-			tKeyMapEntries.add(new KeyMapEntry(26, KeyEvent.VK_2, "VK_2"));
-			tKeyMapEntries.add(new KeyMapEntry(27, KeyEvent.VK_3, "VK_3"));
-			tKeyMapEntries.add(new KeyMapEntry(28, KeyEvent.VK_4, "VK_4"));
-			tKeyMapEntries.add(new KeyMapEntry(29, KeyEvent.VK_5, "VK_5"));
-			tKeyMapEntries.add(new KeyMapEntry(30, KeyEvent.VK_6, "VK_6"));
-			tKeyMapEntries.add(new KeyMapEntry(31, KeyEvent.VK_7, "VK_7"));
-			tKeyMapEntries.add(new KeyMapEntry(32, KeyEvent.VK_8, "VK_8"));
-			tKeyMapEntries.add(new KeyMapEntry(33, KeyEvent.VK_9, "VK_9"));
-			tKeyMapEntries.add(new KeyMapEntry(34, KeyEvent.VK_SEMICOLON, "VK_SEMICOLON"));
-			tKeyMapEntries.add(new KeyMapEntry(35, KeyEvent.VK_EQUALS, "VK_EQUALS"));
-			tKeyMapEntries.add(new KeyMapEntry(36, KeyEvent.VK_A, "VK_A"));
-			tKeyMapEntries.add(new KeyMapEntry(37, KeyEvent.VK_B, "VK_B"));
-			tKeyMapEntries.add(new KeyMapEntry(38, KeyEvent.VK_C, "VK_C"));
-			tKeyMapEntries.add(new KeyMapEntry(39, KeyEvent.VK_D, "VK_D"));
-			tKeyMapEntries.add(new KeyMapEntry(40, KeyEvent.VK_E, "VK_E"));
-			tKeyMapEntries.add(new KeyMapEntry(41, KeyEvent.VK_F, "VK_F"));
-			tKeyMapEntries.add(new KeyMapEntry(42, KeyEvent.VK_G, "VK_G"));
-			tKeyMapEntries.add(new KeyMapEntry(43, KeyEvent.VK_H, "VK_H"));
-			tKeyMapEntries.add(new KeyMapEntry(44, KeyEvent.VK_I, "VK_I"));
-			tKeyMapEntries.add(new KeyMapEntry(45, KeyEvent.VK_J, "VK_J"));
-			tKeyMapEntries.add(new KeyMapEntry(46, KeyEvent.VK_K, "VK_K"));
-			tKeyMapEntries.add(new KeyMapEntry(47, KeyEvent.VK_L, "VK_L"));
-			tKeyMapEntries.add(new KeyMapEntry(48, KeyEvent.VK_M, "VK_M"));
-			tKeyMapEntries.add(new KeyMapEntry(49, KeyEvent.VK_N, "VK_N"));
-			tKeyMapEntries.add(new KeyMapEntry(50, KeyEvent.VK_O, "VK_O"));
-			tKeyMapEntries.add(new KeyMapEntry(51, KeyEvent.VK_P, "VK_P"));
-			tKeyMapEntries.add(new KeyMapEntry(52, KeyEvent.VK_Q, "VK_Q"));
-			tKeyMapEntries.add(new KeyMapEntry(53, KeyEvent.VK_R, "VK_R"));
-			tKeyMapEntries.add(new KeyMapEntry(54, KeyEvent.VK_S, "VK_S"));
-			tKeyMapEntries.add(new KeyMapEntry(55, KeyEvent.VK_T, "VK_T"));
-			tKeyMapEntries.add(new KeyMapEntry(56, KeyEvent.VK_U, "VK_U"));
-			tKeyMapEntries.add(new KeyMapEntry(57, KeyEvent.VK_V, "VK_V"));
-			tKeyMapEntries.add(new KeyMapEntry(58, KeyEvent.VK_W, "VK_W"));
-			tKeyMapEntries.add(new KeyMapEntry(59, KeyEvent.VK_X, "VK_X"));
-			tKeyMapEntries.add(new KeyMapEntry(60, KeyEvent.VK_Y, "VK_Y"));
-			tKeyMapEntries.add(new KeyMapEntry(61, KeyEvent.VK_Z, "VK_Z"));
-			tKeyMapEntries.add(new KeyMapEntry(62, KeyEvent.VK_OPEN_BRACKET, "VK_OPEN_BRACKET"));
-			tKeyMapEntries.add(new KeyMapEntry(63, KeyEvent.VK_BACK_SLASH, "VK_BACK_SLASH"));
-			tKeyMapEntries.add(new KeyMapEntry(64, KeyEvent.VK_CLOSE_BRACKET, "VK_CLOSE_BRACKET"));
-			tKeyMapEntries.add(new KeyMapEntry(65, KeyEvent.VK_NUMPAD0, "VK_NUMPAD0"));
-			tKeyMapEntries.add(new KeyMapEntry(66, KeyEvent.VK_NUMPAD1, "VK_NUMPAD1"));
-			tKeyMapEntries.add(new KeyMapEntry(67, KeyEvent.VK_NUMPAD2, "VK_NUMPAD2"));
-			tKeyMapEntries.add(new KeyMapEntry(68, KeyEvent.VK_NUMPAD3, "VK_NUMPAD3"));
-			tKeyMapEntries.add(new KeyMapEntry(69, KeyEvent.VK_NUMPAD4, "VK_NUMPAD4"));
-			tKeyMapEntries.add(new KeyMapEntry(70, KeyEvent.VK_NUMPAD5, "VK_NUMPAD5"));
-			tKeyMapEntries.add(new KeyMapEntry(71, KeyEvent.VK_NUMPAD6, "VK_NUMPAD6"));
-			tKeyMapEntries.add(new KeyMapEntry(72, KeyEvent.VK_NUMPAD7, "VK_NUMPAD7"));
-			tKeyMapEntries.add(new KeyMapEntry(73, KeyEvent.VK_NUMPAD8, "VK_NUMPAD8"));
-			tKeyMapEntries.add(new KeyMapEntry(74, KeyEvent.VK_NUMPAD9, "VK_NUMPAD9"));
-			tKeyMapEntries.add(new KeyMapEntry(75, KeyEvent.VK_MULTIPLY, "VK_MULTIPLY"));
-			tKeyMapEntries.add(new KeyMapEntry(76, KeyEvent.VK_ADD, "VK_ADD"));
-			tKeyMapEntries.add(new KeyMapEntry(77, KeyEvent.VK_SEPARATER, "VK_SEPARATER"));
-			tKeyMapEntries.add(new KeyMapEntry(78, KeyEvent.VK_SEPARATOR, "VK_SEPARATOR"));
-			tKeyMapEntries.add(new KeyMapEntry(79, KeyEvent.VK_SUBTRACT, "VK_SUBTRACT"));
-			tKeyMapEntries.add(new KeyMapEntry(80, KeyEvent.VK_DECIMAL, "VK_DECIMAL"));
-			tKeyMapEntries.add(new KeyMapEntry(81, KeyEvent.VK_DIVIDE, "VK_DIVIDE"));
-			tKeyMapEntries.add(new KeyMapEntry(82, KeyEvent.VK_F1, "VK_F1"));
-			tKeyMapEntries.add(new KeyMapEntry(83, KeyEvent.VK_F2, "VK_F2"));
-			tKeyMapEntries.add(new KeyMapEntry(84, KeyEvent.VK_F3, "VK_F3"));
-			tKeyMapEntries.add(new KeyMapEntry(85, KeyEvent.VK_F4, "VK_F4"));
-			tKeyMapEntries.add(new KeyMapEntry(86, KeyEvent.VK_F5, "VK_F5"));
-			tKeyMapEntries.add(new KeyMapEntry(87, KeyEvent.VK_F6, "VK_F6"));
-			tKeyMapEntries.add(new KeyMapEntry(88, KeyEvent.VK_F7, "VK_F7"));
-			tKeyMapEntries.add(new KeyMapEntry(89, KeyEvent.VK_F8, "VK_F8"));
-			tKeyMapEntries.add(new KeyMapEntry(90, KeyEvent.VK_F9, "VK_F9"));
-			tKeyMapEntries.add(new KeyMapEntry(91, KeyEvent.VK_F10, "VK_F10"));
-			tKeyMapEntries.add(new KeyMapEntry(92, KeyEvent.VK_F11, "VK_F11"));
-			tKeyMapEntries.add(new KeyMapEntry(93, KeyEvent.VK_F12, "VK_F12"));
-			tKeyMapEntries.add(new KeyMapEntry(94, KeyEvent.VK_DELETE, "VK_DELETE"));
-			tKeyMapEntries.add(new KeyMapEntry(95, KeyEvent.VK_NUM_LOCK, "VK_NUM_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(96, KeyEvent.VK_SCROLL_LOCK, "VK_SCROLL_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(97, KeyEvent.VK_AMPERSAND, "VK_AMPERSAND"));
-			tKeyMapEntries.add(new KeyMapEntry(98, KeyEvent.VK_ASTERISK, "VK_ASTERISK"));
-			tKeyMapEntries.add(new KeyMapEntry(99, KeyEvent.VK_QUOTEDBL, "VK_QUOTEDBL"));
-			tKeyMapEntries.add(new KeyMapEntry(100, KeyEvent.VK_LESS, "VK_LESS"));
-			tKeyMapEntries.add(new KeyMapEntry(101, KeyEvent.VK_PRINTSCREEN, "VK_PRINTSCREEN"));
-			tKeyMapEntries.add(new KeyMapEntry(102, KeyEvent.VK_INSERT, "VK_INSERT"));
-			tKeyMapEntries.add(new KeyMapEntry(103, KeyEvent.VK_GREATER, "VK_GREATER"));
-			tKeyMapEntries.add(new KeyMapEntry(104, KeyEvent.VK_BRACELEFT, "VK_BRACELEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(105, KeyEvent.VK_BRACERIGHT, "VK_BRACERIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(106, KeyEvent.VK_BACK_QUOTE, "VK_BACK_QUOTE"));
-			tKeyMapEntries.add(new KeyMapEntry(107, KeyEvent.VK_QUOTE, "VK_QUOTE"));
-			tKeyMapEntries.add(new KeyMapEntry(108, KeyEvent.VK_KP_UP, "VK_KP_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(109, KeyEvent.VK_KP_DOWN, "VK_KP_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(110, KeyEvent.VK_KP_LEFT, "VK_KP_LEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(111, KeyEvent.VK_KP_RIGHT, "VK_KP_RIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(112, KeyEvent.VK_WINDOWS, "VK_WINDOWS"));
-			tMouseMapEntries.add(new MouseMapEntry(113, 1, "VM_BTN_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(114, 2, "VM_BTN_MIDDLE"));
-			tMouseMapEntries.add(new MouseMapEntry(115, 3, "VM_BTN_RIGHT"));
-			tMouseMapEntries.add(new MouseMapEntry(116, 4, "VM_WHEEL_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(117, 5, "VM_WHEEL_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(118, 6, "VM_MOVE_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(119, 7, "VM_MOVE_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(120, 8, "VM_MOVE_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(121, 9, "VM_MOVE_RIGHT"));
-			tMouseMapEntries.add(new MouseMapEntry(122, 10, "VM_MOVE_10_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(123, 11, "VM_MOVE_10_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(124, 12, "VM_MOVE_10_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(125, 13, "VM_MOVE_10_RIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(0, KeyEvent.VK_BACK_SPACE, "VK_BACK_SPACE"));
+			tKeyMapEntries.add(new KeyMapEntry(1, KeyEvent.VK_TAB, "VK_TAB"));
+			tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_ENTER, "VK_ENTER"));
+			tKeyMapEntries.add(new KeyMapEntry(3, KeyEvent.VK_CLEAR, "VK_CLEAR"));
+			tKeyMapEntries.add(new KeyMapEntry(4, KeyEvent.VK_SHIFT, "VK_SHIFT"));
+			tKeyMapEntries.add(new KeyMapEntry(5, KeyEvent.VK_CONTROL, "VK_CONTROL"));
+			tKeyMapEntries.add(new KeyMapEntry(6, KeyEvent.VK_ALT, "VK_ALT"));
+			tKeyMapEntries.add(new KeyMapEntry(7, KeyEvent.VK_PAUSE, "VK_PAUSE"));
+			tKeyMapEntries.add(new KeyMapEntry(8, KeyEvent.VK_CAPS_LOCK, "VK_CAPS_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(9, KeyEvent.VK_ESCAPE, "VK_ESCAPE"));
+			tKeyMapEntries.add(new KeyMapEntry(10, KeyEvent.VK_SPACE, "VK_SPACE"));
+			tKeyMapEntries.add(new KeyMapEntry(11, KeyEvent.VK_PAGE_UP, "VK_PAGE_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(12, KeyEvent.VK_PAGE_DOWN, "VK_PAGE_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(13, KeyEvent.VK_END, "VK_END"));
+			tKeyMapEntries.add(new KeyMapEntry(14, KeyEvent.VK_HOME, "VK_HOME"));
+			tKeyMapEntries.add(new KeyMapEntry(15, KeyEvent.VK_LEFT, "VK_LEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(16, KeyEvent.VK_UP, "VK_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(17, KeyEvent.VK_RIGHT, "VK_RIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(18, KeyEvent.VK_DOWN, "VK_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(19, KeyEvent.VK_COMMA, "VK_COMMA"));
+			tKeyMapEntries.add(new KeyMapEntry(20, KeyEvent.VK_MINUS, "VK_MINUS"));
+			tKeyMapEntries.add(new KeyMapEntry(21, KeyEvent.VK_PERIOD, "VK_PERIOD"));
+			tKeyMapEntries.add(new KeyMapEntry(22, KeyEvent.VK_SLASH, "VK_SLASH"));
+			tKeyMapEntries.add(new KeyMapEntry(23, KeyEvent.VK_0, "VK_0"));
+			tKeyMapEntries.add(new KeyMapEntry(24, KeyEvent.VK_1, "VK_1"));
+			tKeyMapEntries.add(new KeyMapEntry(25, KeyEvent.VK_2, "VK_2"));
+			tKeyMapEntries.add(new KeyMapEntry(26, KeyEvent.VK_3, "VK_3"));
+			tKeyMapEntries.add(new KeyMapEntry(27, KeyEvent.VK_4, "VK_4"));
+			tKeyMapEntries.add(new KeyMapEntry(28, KeyEvent.VK_5, "VK_5"));
+			tKeyMapEntries.add(new KeyMapEntry(29, KeyEvent.VK_6, "VK_6"));
+			tKeyMapEntries.add(new KeyMapEntry(30, KeyEvent.VK_7, "VK_7"));
+			tKeyMapEntries.add(new KeyMapEntry(31, KeyEvent.VK_8, "VK_8"));
+			tKeyMapEntries.add(new KeyMapEntry(32, KeyEvent.VK_9, "VK_9"));
+			tKeyMapEntries.add(new KeyMapEntry(33, KeyEvent.VK_SEMICOLON, "VK_SEMICOLON"));
+			tKeyMapEntries.add(new KeyMapEntry(34, KeyEvent.VK_EQUALS, "VK_EQUALS"));
+			tKeyMapEntries.add(new KeyMapEntry(35, KeyEvent.VK_A, "VK_A"));
+			tKeyMapEntries.add(new KeyMapEntry(36, KeyEvent.VK_B, "VK_B"));
+			tKeyMapEntries.add(new KeyMapEntry(37, KeyEvent.VK_C, "VK_C"));
+			tKeyMapEntries.add(new KeyMapEntry(38, KeyEvent.VK_D, "VK_D"));
+			tKeyMapEntries.add(new KeyMapEntry(39, KeyEvent.VK_E, "VK_E"));
+			tKeyMapEntries.add(new KeyMapEntry(40, KeyEvent.VK_F, "VK_F"));
+			tKeyMapEntries.add(new KeyMapEntry(41, KeyEvent.VK_G, "VK_G"));
+			tKeyMapEntries.add(new KeyMapEntry(42, KeyEvent.VK_H, "VK_H"));
+			tKeyMapEntries.add(new KeyMapEntry(43, KeyEvent.VK_I, "VK_I"));
+			tKeyMapEntries.add(new KeyMapEntry(44, KeyEvent.VK_J, "VK_J"));
+			tKeyMapEntries.add(new KeyMapEntry(45, KeyEvent.VK_K, "VK_K"));
+			tKeyMapEntries.add(new KeyMapEntry(46, KeyEvent.VK_L, "VK_L"));
+			tKeyMapEntries.add(new KeyMapEntry(47, KeyEvent.VK_M, "VK_M"));
+			tKeyMapEntries.add(new KeyMapEntry(48, KeyEvent.VK_N, "VK_N"));
+			tKeyMapEntries.add(new KeyMapEntry(49, KeyEvent.VK_O, "VK_O"));
+			tKeyMapEntries.add(new KeyMapEntry(50, KeyEvent.VK_P, "VK_P"));
+			tKeyMapEntries.add(new KeyMapEntry(51, KeyEvent.VK_Q, "VK_Q"));
+			tKeyMapEntries.add(new KeyMapEntry(52, KeyEvent.VK_R, "VK_R"));
+			tKeyMapEntries.add(new KeyMapEntry(53, KeyEvent.VK_S, "VK_S"));
+			tKeyMapEntries.add(new KeyMapEntry(54, KeyEvent.VK_T, "VK_T"));
+			tKeyMapEntries.add(new KeyMapEntry(55, KeyEvent.VK_U, "VK_U"));
+			tKeyMapEntries.add(new KeyMapEntry(56, KeyEvent.VK_V, "VK_V"));
+			tKeyMapEntries.add(new KeyMapEntry(57, KeyEvent.VK_W, "VK_W"));
+			tKeyMapEntries.add(new KeyMapEntry(58, KeyEvent.VK_X, "VK_X"));
+			tKeyMapEntries.add(new KeyMapEntry(59, KeyEvent.VK_Y, "VK_Y"));
+			tKeyMapEntries.add(new KeyMapEntry(60, KeyEvent.VK_Z, "VK_Z"));
+			tKeyMapEntries.add(new KeyMapEntry(61, KeyEvent.VK_OPEN_BRACKET, "VK_OPEN_BRACKET"));
+			tKeyMapEntries.add(new KeyMapEntry(62, KeyEvent.VK_BACK_SLASH, "VK_BACK_SLASH"));
+			tKeyMapEntries.add(new KeyMapEntry(63, KeyEvent.VK_CLOSE_BRACKET, "VK_CLOSE_BRACKET"));
+			tKeyMapEntries.add(new KeyMapEntry(64, KeyEvent.VK_NUMPAD0, "VK_NUMPAD0"));
+			tKeyMapEntries.add(new KeyMapEntry(65, KeyEvent.VK_NUMPAD1, "VK_NUMPAD1"));
+			tKeyMapEntries.add(new KeyMapEntry(66, KeyEvent.VK_NUMPAD2, "VK_NUMPAD2"));
+			tKeyMapEntries.add(new KeyMapEntry(67, KeyEvent.VK_NUMPAD3, "VK_NUMPAD3"));
+			tKeyMapEntries.add(new KeyMapEntry(68, KeyEvent.VK_NUMPAD4, "VK_NUMPAD4"));
+			tKeyMapEntries.add(new KeyMapEntry(69, KeyEvent.VK_NUMPAD5, "VK_NUMPAD5"));
+			tKeyMapEntries.add(new KeyMapEntry(70, KeyEvent.VK_NUMPAD6, "VK_NUMPAD6"));
+			tKeyMapEntries.add(new KeyMapEntry(71, KeyEvent.VK_NUMPAD7, "VK_NUMPAD7"));
+			tKeyMapEntries.add(new KeyMapEntry(72, KeyEvent.VK_NUMPAD8, "VK_NUMPAD8"));
+			tKeyMapEntries.add(new KeyMapEntry(73, KeyEvent.VK_NUMPAD9, "VK_NUMPAD9"));
+			tKeyMapEntries.add(new KeyMapEntry(74, KeyEvent.VK_MULTIPLY, "VK_MULTIPLY"));
+			tKeyMapEntries.add(new KeyMapEntry(75, KeyEvent.VK_ADD, "VK_ADD"));
+			tKeyMapEntries.add(new KeyMapEntry(76, KeyEvent.VK_SEPARATER, "VK_SEPARATER"));
+			tKeyMapEntries.add(new KeyMapEntry(77, KeyEvent.VK_SEPARATOR, "VK_SEPARATOR"));
+			tKeyMapEntries.add(new KeyMapEntry(78, KeyEvent.VK_SUBTRACT, "VK_SUBTRACT"));
+			tKeyMapEntries.add(new KeyMapEntry(79, KeyEvent.VK_DECIMAL, "VK_DECIMAL"));
+			tKeyMapEntries.add(new KeyMapEntry(80, KeyEvent.VK_DIVIDE, "VK_DIVIDE"));
+			tKeyMapEntries.add(new KeyMapEntry(81, KeyEvent.VK_F1, "VK_F1"));
+			tKeyMapEntries.add(new KeyMapEntry(82, KeyEvent.VK_F2, "VK_F2"));
+			tKeyMapEntries.add(new KeyMapEntry(83, KeyEvent.VK_F3, "VK_F3"));
+			tKeyMapEntries.add(new KeyMapEntry(84, KeyEvent.VK_F4, "VK_F4"));
+			tKeyMapEntries.add(new KeyMapEntry(85, KeyEvent.VK_F5, "VK_F5"));
+			tKeyMapEntries.add(new KeyMapEntry(86, KeyEvent.VK_F6, "VK_F6"));
+			tKeyMapEntries.add(new KeyMapEntry(87, KeyEvent.VK_F7, "VK_F7"));
+			tKeyMapEntries.add(new KeyMapEntry(88, KeyEvent.VK_F8, "VK_F8"));
+			tKeyMapEntries.add(new KeyMapEntry(89, KeyEvent.VK_F9, "VK_F9"));
+			tKeyMapEntries.add(new KeyMapEntry(90, KeyEvent.VK_F10, "VK_F10"));
+			tKeyMapEntries.add(new KeyMapEntry(91, KeyEvent.VK_F11, "VK_F11"));
+			tKeyMapEntries.add(new KeyMapEntry(92, KeyEvent.VK_F12, "VK_F12"));
+			tKeyMapEntries.add(new KeyMapEntry(93, KeyEvent.VK_DELETE, "VK_DELETE"));
+			tKeyMapEntries.add(new KeyMapEntry(94, KeyEvent.VK_NUM_LOCK, "VK_NUM_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(95, KeyEvent.VK_SCROLL_LOCK, "VK_SCROLL_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(96, KeyEvent.VK_AMPERSAND, "VK_AMPERSAND"));
+			tKeyMapEntries.add(new KeyMapEntry(97, KeyEvent.VK_ASTERISK, "VK_ASTERISK"));
+			tKeyMapEntries.add(new KeyMapEntry(98, KeyEvent.VK_QUOTEDBL, "VK_QUOTEDBL"));
+			tKeyMapEntries.add(new KeyMapEntry(99, KeyEvent.VK_LESS, "VK_LESS"));
+			tKeyMapEntries.add(new KeyMapEntry(100, KeyEvent.VK_PRINTSCREEN, "VK_PRINTSCREEN"));
+			tKeyMapEntries.add(new KeyMapEntry(101, KeyEvent.VK_INSERT, "VK_INSERT"));
+			tKeyMapEntries.add(new KeyMapEntry(102, KeyEvent.VK_GREATER, "VK_GREATER"));
+			tKeyMapEntries.add(new KeyMapEntry(103, KeyEvent.VK_BRACELEFT, "VK_BRACELEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(104, KeyEvent.VK_BRACERIGHT, "VK_BRACERIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(105, KeyEvent.VK_BACK_QUOTE, "VK_BACK_QUOTE"));
+			tKeyMapEntries.add(new KeyMapEntry(106, KeyEvent.VK_QUOTE, "VK_QUOTE"));
+			tKeyMapEntries.add(new KeyMapEntry(107, KeyEvent.VK_KP_UP, "VK_KP_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(108, KeyEvent.VK_KP_DOWN, "VK_KP_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(109, KeyEvent.VK_KP_LEFT, "VK_KP_LEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(110, KeyEvent.VK_KP_RIGHT, "VK_KP_RIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(111, KeyEvent.VK_WINDOWS, "VK_WINDOWS"));
+			tMouseMapEntries.add(new MouseMapEntry(112, 1, "VM_BTN_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(113, 2, "VM_BTN_MIDDLE"));
+			tMouseMapEntries.add(new MouseMapEntry(114, 3, "VM_BTN_RIGHT"));
+			tMouseMapEntries.add(new MouseMapEntry(115, 4, "VM_WHEEL_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(116, 5, "VM_WHEEL_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(117, 6, "VM_MOVE_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(118, 7, "VM_MOVE_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(119, 8, "VM_MOVE_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(120, 9, "VM_MOVE_RIGHT"));
+			tMouseMapEntries.add(new MouseMapEntry(121, 10, "VM_MOVE_10_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(122, 11, "VM_MOVE_10_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(123, 12, "VM_MOVE_10_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(124, 13, "VM_MOVE_10_RIGHT"));
 		}
+		{
+			for (int i = 0; i < cntDataPixels * 24; i++) 
+				tUnknownMapEntries.add(i);
+			Collections.sort(tKeyMapEntries, Comparator.comparing(pme -> pme.idx));
+			Collections.sort(tMouseMapEntries, Comparator.comparing(pme -> pme.idx));
+			Collections.sort(tUnknownMapEntries);
+
+			ArrayList<KeyMapEntry> tKeyMap = tKeyMapEntries;
+			ArrayList<MouseMapEntry> tMouseMap = tMouseMapEntries;
+			ArrayList<Integer> tKnownMap = new ArrayList<>();
+
+			for (KeyMapEntry pme : tKeyMapEntries) 
+				tKnownMap.add(pme.idx);
+			for (MouseMapEntry pme : tMouseMapEntries) 
+				tKnownMap.add(pme.idx);
+			tUnknownMapEntries.removeAll(tKnownMap);
+		}
+
 	}
 
 	static Runnable taskPressKeys = () -> {
@@ -484,10 +508,41 @@ public class PixelsToKeys extends JFrame {
 				while (tPreviousInds.size() > 10)
 					tPreviousInds.remove(0);
 				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
-				if (rgb0 == constantPixel & rgb7 == constantEndPixel) {
+				if (rgb0 == constantPixel & rgb7 == constantEndPixel) { // Once we've had both constants AND all 0 for 10 checks, we can start looking for pixels.
 					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
+					else if (rgb2 == rgb1 & rgb3 == rgb1 & rgb4 == rgb1 & rgb5 == rgb1 & rgb6 == rgb1) { // faceroll check
+						// reset the constant counter if all are off 0 by the same amount
+						for (String prvTxt : tPreviousInds)
+							spLogd(prvTxt);
+						spLog("All are off 0 by the same amount. Releasing all and resetting.");
+						cntConsistent = 0;
+					}
 				} else cntConsistent = 0;
-				if (rgb0 == constantPixel & rgb7 == constantEndPixel & cntConsistent > 10) {
+				char[] aCurPx = curPxBinString.toCharArray();
+				
+				if (cntConsistent > 10) { // faceroll check
+					for (Integer unkIdx : tUnknownMapEntries) {
+						if (aCurPx[unkIdx] == PRESSED) {
+							for (String prvTxt : tPreviousInds)
+								spLogd(prvTxt);
+							spLog("Unknown Index " + unkIdx + " is set. Releasing all and resetting.");
+							cntConsistent = 0;
+						}
+					}
+				}
+				if (cntConsistent > 10) { // faceroll check
+					int cntKeysSet = 0;
+					for (char c : aCurPx)
+						if (c == PRESSED) cntKeysSet++;
+					if (cntKeysSet >= 5) {
+						for (String prvTxt : tPreviousInds)
+							spLogd(prvTxt);
+						spLog("Too many indicators set (" + cntKeysSet + "). Releasing all and resetting.");
+						cntConsistent = 0;
+					}
+				}
+
+				if (cntConsistent > 10) {
 					//if (cycleBeginTime > extralogtime) { // remove
 					//	spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
 					//			"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
@@ -500,19 +555,6 @@ public class PixelsToKeys extends JFrame {
 						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
 						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
 						txt += "\t" + "px1Bin:" + curPxBinString;
-						char[] aCurPx = curPxBinString.toCharArray();
-						{
-							int cntKeysSet = 0;
-							for (char c : aCurPx)
-								if (c == PRESSED) cntKeysSet++;
-							if (cntKeysSet > 5) {
-								spLog("cntKeysSet:" + cntKeysSet + ". exiting");
-								releaseAll();
-								for (String prvTxt : tPreviousInds)
-									spLogd(prvTxt);
-								return;
-							}
-						}
 						for (KeyMapEntry pme : tKeyMapEntries) {
 							txt += pme.reportIfChanged(aCurPx);
 							pme.performIfChanged(aCurPx, robot);
@@ -535,9 +577,7 @@ public class PixelsToKeys extends JFrame {
 						prvPxBinString = curPxBinString;
 					}
 
-				} else {
-					releaseAll();
-				}
+				} else releaseAll();
 				cycleEndTime = System.currentTimeMillis();
 				cycleTotTime = cycleEndTime - cycleBeginTime;
 				if (cycleTotTime < loopMinTime) Thread.sleep(loopMinTime - cycleTotTime);
