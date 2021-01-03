@@ -1,14 +1,10 @@
-28) begin thread call
-1) end thread call
-119) begin PixelsToKeys
+32) begin thread call
+2) end thread call
+120) begin PixelsToKeys
 1) setting look and feel
-10) SystemTray.isSupported():true
-4) trayIcon:SystemTray Demo
-66) end initComponents
+11) SystemTray.isSupported():true
+3) trayIcon:PixelsToKeys
+54) added to SystemTray
+25) end initComponents
 0) end PixelsToKeys
-paintComponent: 300 x 50
-paintComponent: 300 x 50
-2315) added to SystemTray
-4801) Tray icon removed
-paintComponent: 300 x 50
-paintComponent: 300 x 50
+4397) Exiting....

@@ -28,7 +28,6 @@ public class PixelsToKeys extends JFrame {
 	static SystemTray tray;
 	static Image iconImage;
 	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
-	static boolean doShowWindow = true;
 	static boolean doLogFile = false;
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
@@ -61,85 +60,18 @@ public class PixelsToKeys extends JFrame {
 
 	public static void main(String args[]) {
 		for (String arg : args) {
-			if (arg.equalsIgnoreCase("W")) doShowWindow = true;
-			if (arg.equalsIgnoreCase("NW")) doShowWindow = false;
 			if (arg.equalsIgnoreCase("L")) doLogFile = true;
 			if (arg.equalsIgnoreCase("NL")) doLogFile = false;
 		}
 
-		doLogFile = true;
-
-		if (false) {
-			spLog("begin thread call");
-			new Thread(taskMouseMove).start();
-			spLog("end thread call");
-
-			try { // shortly run two commands
-				Robot robot = new Robot();
-				tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_TAB, "VK_TAB"));
-				tMouseMapEntries.add(new MouseMapEntry(121, 9, "VM_MOVE_RIGHT"));
-
-				final char[] aTmpCharInd = new char[200];
-				for (int i = 0; i < aTmpCharInd.length; i++)
-					aTmpCharInd[i] = RELEASED;
-				spLog("begin");
-
-				aTmpCharInd[2 - 1] = PRESSED;
-				aTmpCharInd[121 - 1] = PRESSED;
-
-				tKeyMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tKeyMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tKeyMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-				tMouseMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tMouseMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tMouseMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-
-				spLog("before delay");
-				robot.delay(100);
-				spLog("after delay");
-
-				aTmpCharInd[2 - 1] = RELEASED;
-				aTmpCharInd[121 - 1] = RELEASED;
-
-				tKeyMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tKeyMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tKeyMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-				tMouseMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tMouseMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tMouseMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				spLog(e.toString());
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				//new PixelsToKeys().setVisible(true);
+				new PixelsToKeys();
+				// TMPBRI I can't get this to show the window and be able to hide.
+				// taking off setVisible keeps the main window from showing at all.
 			}
-			spLog("done");
-
-			return;
-		}
-
-		if (false) { // list out the constants
-			Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
-			for (Field f : fields) {
-				if (Modifier.isStatic(f.getModifiers())) {
-					try {
-						System.out.println(f.getInt(f.getName()) + "\t" + f.getName());
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			return;
-		}
-
-		if (doShowWindow) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					new PixelsToKeys().setVisible(true);
-				}
-			});
-		}
+		});
 
 		//loadKeyMap();
 		setKeyMap();
@@ -148,6 +80,21 @@ public class PixelsToKeys extends JFrame {
 		new Thread(taskPressKeys).start();
 		new Thread(taskMouseMove).start();
 		spLog("end thread call");
+	}
+	
+	private static void listKeyEventConstants() { // list out the constants
+		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
+		for (Field f : fields) {
+			if (Modifier.isStatic(f.getModifiers())) {
+				try {
+					System.out.println(f.getInt(f.getName()) + "\t" + f.getName());
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	static private class KeyMapEntry {
@@ -287,58 +234,6 @@ public class PixelsToKeys extends JFrame {
 		return Integer.parseUnsignedInt("ff" + val, 16);
 	}
 
-	private static void loadKeyMap() {
-		// ConstantPixel = 0x010203
-		// ConstantLocX = 0
-		// ConstantLocY = 5
-		// KeyMapValues = 87 w, 83 s, 65 a, 68 d, 69 e, 88 x
-		// MouseMapValues = mousebtn1, mousebtn2, mousebtn3, leftmouse, upspeed1, downspeed1, leftspeed1, rightspeed1
-		File mapFile = new File("PixelsToKeys.txt");
-		if (!mapFile.exists()) {
-			File dir = new File((new File("")).getAbsolutePath());
-			File[] aFiles = dir.listFiles((dir1, name) -> name.endsWith(".config"));
-			if (aFiles.length > 0) mapFile = aFiles[0];
-		}
-		spLog("Config File = " + mapFile.getName());
-		if (mapFile.exists()) {
-			try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(mapFile)))) {
-				String line;
-				while ((line = bufferedReader.readLine()) != null) {
-					spLog(line);
-					if (line.contains("=")) {
-						String field = line.substring(1, line.indexOf("=") + 1).trim();
-						if (line.toUpperCase().trim().startsWith("ConstantPixel".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\w+)"); // word
-							//if (val.length() > 6) val = val.substring(val.length() - 6);
-							//constantPixel = Integer.parseUnsignedInt("ff" + val, 16);
-							constantPixel = getHexColorToInt(val);
-							spLog("ConstantPixel=" + constantPixel);
-						} else if (line.toUpperCase().trim().startsWith("ConstantLocX".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\d+)"); // digit
-							if (!val.isEmpty()) constantLocX = Integer.parseInt(val);
-							spLog("ConstantLocX=" + constantLocX);
-						} else if (line.toUpperCase().trim().startsWith("ConstantLocY".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\d+)"); // digit
-							if (!val.isEmpty()) constantLocY = Integer.parseInt(val);
-							spLog("ConstantLocY=" + constantLocY);
-						} else if (line.toUpperCase().trim().startsWith("KeyMapValues".toUpperCase())) {
-							//
-						} else if (line.toUpperCase().trim().startsWith("MouseMapValues".toUpperCase())) {
-							//
-						}
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	private static void setKeyMap() {
 		tKeyMapEntries.clear();
 		tMouseMapEntries.clear();
@@ -476,15 +371,14 @@ public class PixelsToKeys extends JFrame {
 			Collections.sort(tKeyMapEntries, Comparator.comparing(pme -> pme.idx));
 			Collections.sort(tMouseMapEntries, Comparator.comparing(pme -> pme.idx));
 			Collections.sort(tUnknownMapEntries);
-
-			ArrayList<KeyMapEntry> tKeyMap = tKeyMapEntries;
-			ArrayList<MouseMapEntry> tMouseMap = tMouseMapEntries;
 			ArrayList<Integer> tKnownMap = new ArrayList<>();
 
 			for (KeyMapEntry pme : tKeyMapEntries)
 				tKnownMap.add(pme.idx);
 			for (MouseMapEntry pme : tMouseMapEntries)
 				tKnownMap.add(pme.idx);
+			Collections.sort(tKnownMap);
+			Collections.sort(tUnknownMapEntries);
 			tUnknownMapEntries.removeAll(tKnownMap);
 		}
 
@@ -559,8 +453,8 @@ public class PixelsToKeys extends JFrame {
 				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
 					//spLogd(showthis);
 					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
-							"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
-							" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
+					"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
+					" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
 					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
 					extralogtime = System.currentTimeMillis() + 100;
 				}
@@ -658,7 +552,7 @@ public class PixelsToKeys extends JFrame {
 	class Panel2 extends JPanel {
 		Panel2() {
 			setPreferredSize(new Dimension(prefWidth, prefHeight)); // set a preferred size for the custom panel.
-			if(true){
+			if (true) {
 				iconImage = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("icon.png"));
 				try {
 					spLog("setting look and feel");
@@ -666,6 +560,7 @@ public class PixelsToKeys extends JFrame {
 				} catch (Exception e) {
 					spLog("Unable to set LookAndFeel");
 				}
+				
 				if (SystemTray.isSupported()) {
 					spLog("SystemTray.isSupported():" + SystemTray.isSupported());
 					tray = SystemTray.getSystemTray();
@@ -690,46 +585,55 @@ public class PixelsToKeys extends JFrame {
 					trayIcon = new TrayIcon(iconImage, "PixelsToKeys", popup);
 					trayIcon.setImageAutoSize(true);
 					spLog("trayIcon:" + trayIcon.getToolTip());
+
+					try {
+						tray.add(trayIcon);
+						spLog("added to SystemTray");
+					} catch (AWTException ex) {
+						spLog("unable to add to tray");
+					}
 				}
 
 				addWindowStateListener(new WindowStateListener() {
 					public void windowStateChanged(WindowEvent e) {
+						// TMPBRI I can't get this to show the window and be able to hide. 
+						spLog("windowStateChanged getNewState():"+e.getNewState());
 						if (e.getNewState() == ICONIFIED) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to tray");
-							}
+//							try {
+//								tray.add(trayIcon);
+//								spLog("added to SystemTray");
+//							} catch (AWTException ex) {
+//								spLog("unable to add to tray");
+//							}
+//							setVisible(false);
 						}
 						if (e.getNewState() == 7) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to system tray");
-							}
+//							try {
+//								tray.add(trayIcon);
+//								spLog("added to SystemTray");
+//							} catch (AWTException ex) {
+//								spLog("unable to add to system tray");
+//							}
+//							setVisible(false);
 						}
 						if (e.getNewState() == MAXIMIZED_BOTH) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
+//							tray.remove(trayIcon);
+//							spLog("Tray icon removed");
+//							setVisible(true);
 						}
 						if (e.getNewState() == NORMAL) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
+//							tray.remove(trayIcon);
+//							spLog("Tray icon removed");
+//							setVisible(true);
 						}
 					}
 				});
 				setIconImage(iconImage);
 
-				setVisible(true);
-				setSize(300, 200);
-				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				
+								setVisible(true);
+				//				setSize(300, 200);
+				//				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 			}
 
 		}
