@@ -23,6 +23,9 @@ import javax.swing.border.*;
 //import static liblaughlog.Utils.Log.*;
 
 public class PixelsToKeys extends JFrame {
+	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
+	static boolean doShowWindow = true;
+	static boolean doLogFile = false;
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
 	static int constantLocX = 3, constantLocY = 0, cntDataPixels = 6; // constantPixel,data1,data2,data3,data4,data5,data6,constantEndPixel
@@ -53,6 +56,12 @@ public class PixelsToKeys extends JFrame {
 	}
 
 	public static void main(String args[]) {
+		for (String arg : args) {
+			if (arg.equalsIgnoreCase("W")) doShowWindow = true;
+			if (arg.equalsIgnoreCase("NW")) doShowWindow = false;
+			if (arg.equalsIgnoreCase("L")) doLogFile = true;
+			if (arg.equalsIgnoreCase("NL")) doLogFile = false;
+		}
 
 		if (false) {
 			spLog("begin thread call");
@@ -118,12 +127,16 @@ public class PixelsToKeys extends JFrame {
 			return;
 		}
 
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				new PixelsToKeys().setVisible(true);
-			}
-		});
-		loadKeyMap();
+		if (doShowWindow) {
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					new PixelsToKeys().setVisible(true);
+				}
+			});
+		}
+
+		//loadKeyMap();
+		setKeyMap();
 
 		spLog("begin thread call");
 		new Thread(taskPressKeys).start();
@@ -318,6 +331,9 @@ public class PixelsToKeys extends JFrame {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private static void setKeyMap() {
 		tKeyMapEntries.clear();
 		tMouseMapEntries.clear();
 		tUnknownMapEntries.clear();
@@ -449,7 +465,7 @@ public class PixelsToKeys extends JFrame {
 			tMouseMapEntries.add(new MouseMapEntry(124, 13, "VM_MOVE_10_RIGHT"));
 		}
 		{
-			for (int i = 0; i < cntDataPixels * 24; i++) 
+			for (int i = 0; i < cntDataPixels * 24; i++)
 				tUnknownMapEntries.add(i);
 			Collections.sort(tKeyMapEntries, Comparator.comparing(pme -> pme.idx));
 			Collections.sort(tMouseMapEntries, Comparator.comparing(pme -> pme.idx));
@@ -459,9 +475,9 @@ public class PixelsToKeys extends JFrame {
 			ArrayList<MouseMapEntry> tMouseMap = tMouseMapEntries;
 			ArrayList<Integer> tKnownMap = new ArrayList<>();
 
-			for (KeyMapEntry pme : tKeyMapEntries) 
+			for (KeyMapEntry pme : tKeyMapEntries)
 				tKnownMap.add(pme.idx);
-			for (MouseMapEntry pme : tMouseMapEntries) 
+			for (MouseMapEntry pme : tMouseMapEntries)
 				tKnownMap.add(pme.idx);
 			tUnknownMapEntries.removeAll(tKnownMap);
 		}
@@ -483,7 +499,7 @@ public class PixelsToKeys extends JFrame {
 			int prvRGB6 = tmpcap.getRGB(6, 0);
 			int prvRGB7 = tmpcap.getRGB(7, 0);
 			int cntConsistent = 0;
-			//long extralogtime = 0; // remove
+			long extralogtime = 0; // remove
 			String txt = "";
 			String curPxBinString = "", prvPxBinString = curPxBinString;
 			ArrayList<String> tPreviousInds = new ArrayList<>();
@@ -504,6 +520,7 @@ public class PixelsToKeys extends JFrame {
 						+ Integer.toBinaryString(rgb4).substring(8)//
 						+ Integer.toBinaryString(rgb5).substring(8)//
 						+ Integer.toBinaryString(rgb6).substring(8);
+				//String showthis = Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7);
 				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
 				while (tPreviousInds.size() > 10)
 					tPreviousInds.remove(0);
@@ -519,7 +536,7 @@ public class PixelsToKeys extends JFrame {
 					}
 				} else cntConsistent = 0;
 				char[] aCurPx = curPxBinString.toCharArray();
-				
+
 				if (cntConsistent > 10) { // faceroll check
 					for (Integer unkIdx : tUnknownMapEntries) {
 						if (aCurPx[unkIdx] == PRESSED) {
@@ -541,15 +558,16 @@ public class PixelsToKeys extends JFrame {
 						cntConsistent = 0;
 					}
 				}
+				if (cycleBeginTime > extralogtime) { // remove
+					//spLogd(showthis);
+					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
+							"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
+							" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
+					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
+					extralogtime = System.currentTimeMillis() + 500;
+				}
 
 				if (cntConsistent > 10) {
-					//if (cycleBeginTime > extralogtime) { // remove
-					//	spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
-					//			"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
-					//			" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
-					//	spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
-					//	extralogtime = System.currentTimeMillis() + 500;
-					//}
 					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
 					if (!curPxBinString.equals(prvPxBinString)) {
 						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
@@ -682,18 +700,20 @@ public class PixelsToKeys extends JFrame {
 	}
 
 	public synchronized static void spLogd(String txt) {
-		sbLog.append(txt).append("\n");
-		System.out.println(txt);
-		if (fwLogFileWriter == null) {
-			try {
-				fwLogFileWriter = new FileWriter("PixelsToKeys.log", false);
-			} catch (IOException e) {
-				e.printStackTrace();
+		if(doLogFile){
+			sbLog.append(txt).append("\n");
+			System.out.println(txt);
+			if (fwLogFileWriter == null) {
+				try {
+					fwLogFileWriter = new FileWriter("PixelsToKeys.log", false);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
+			PrintWriter outWrite = new PrintWriter(fwLogFileWriter);
+			outWrite.println(txt);
+			outWrite.flush();
 		}
-		PrintWriter outWrite = new PrintWriter(fwLogFileWriter);
-		outWrite.println(txt);
-		outWrite.flush();
 	}
 
 }
