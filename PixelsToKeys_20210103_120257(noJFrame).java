@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,12 +22,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 //import static liblaughlog.Utils.Log.*;
 
-public class PixelsToKeys extends JFrame {
-	static TrayIcon trayIcon;
-	static SystemTray tray;
-	static Image iconImage;
+public class PixelsToKeys {
 	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
-	static boolean doShowWindow = true;
 	static boolean doLogFile = false;
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
@@ -45,6 +40,148 @@ public class PixelsToKeys extends JFrame {
 	static int loopMinTime = 15;
 	static final char RELEASED = "0".charAt(0), PRESSED = "1".charAt(0);
 
+
+	public static void main(String args[]) {
+		for (String arg : args) {
+			if (arg.equalsIgnoreCase("L")) doLogFile = true;
+			if (arg.equalsIgnoreCase("NL")) doLogFile = false;
+		}
+		doLogFile = true;
+
+		setKeyMap();
+
+		spLog("begin thread call");
+		new Thread(taskMouseMove).start();
+		spLog("end thread call");
+
+		try {
+			long cycleEndTime = System.currentTimeMillis(), cycleBeginTime = cycleEndTime, cycleTotTime = cycleEndTime - cycleBeginTime;
+			Robot robot = new Robot();
+			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
+			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
+			int cntConsistent = 0;
+			long extralogtime = -1; // remove
+			String txt = "";
+			String curPxBinString = "", prvPxBinString = curPxBinString;
+			ArrayList<String> tPreviousInds = new ArrayList<>();
+			while (true) {
+				cycleBeginTime = System.currentTimeMillis();
+				tmpcap = robot.createScreenCapture(rect);
+				int rgb0 = tmpcap.getRGB(0, 0);
+				int rgb1 = tmpcap.getRGB(1, 0);
+				int rgb2 = tmpcap.getRGB(2, 0);
+				int rgb3 = tmpcap.getRGB(3, 0);
+				int rgb4 = tmpcap.getRGB(4, 0);
+				int rgb5 = tmpcap.getRGB(5, 0);
+				int rgb6 = tmpcap.getRGB(6, 0);
+				int rgb7 = tmpcap.getRGB(7, 0);
+				curPxBinString = Integer.toBinaryString(rgb1).substring(8)//
+						+ Integer.toBinaryString(rgb2).substring(8)//
+						+ Integer.toBinaryString(rgb3).substring(8)//
+						+ Integer.toBinaryString(rgb4).substring(8)//
+						+ Integer.toBinaryString(rgb5).substring(8)//
+						+ Integer.toBinaryString(rgb6).substring(8);
+				//String showthis = Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7);
+				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
+				while (tPreviousInds.size() > 10)
+					tPreviousInds.remove(0);
+				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
+				if (rgb0 == constantPixel & rgb7 == constantEndPixel) { // Once we've had both constants AND all 0 for 10 checks, we can start looking for pixels.
+					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
+					else if (rgb2 == rgb1 & rgb3 == rgb1 & rgb4 == rgb1 & rgb5 == rgb1 & rgb6 == rgb1) { // faceroll check
+						// reset the constant counter if all are off 0 by the same amount
+						for (String prvTxt : tPreviousInds)
+							spLogd(prvTxt);
+						spLog("All are off 0 by the same amount. Releasing all and resetting.");
+						cntConsistent = 0;
+					}
+				} else cntConsistent = 0;
+				char[] aCurPx = curPxBinString.toCharArray();
+
+				if (cntConsistent > 10) { // faceroll check
+					for (Integer unkIdx : tUnknownMapEntries) {
+						if (aCurPx[unkIdx] == PRESSED) {
+							for (String prvTxt : tPreviousInds)
+								spLogd(prvTxt);
+							spLog("Unknown Index " + unkIdx + " is set. Releasing all and resetting.");
+							cntConsistent = 0;
+						}
+					}
+				}
+				if (cntConsistent > 10) { // faceroll check
+					int cntKeysSet = 0;
+					for (char c : aCurPx)
+						if (c == PRESSED) cntKeysSet++;
+					if (cntKeysSet >= 5) {
+						for (String prvTxt : tPreviousInds)
+							spLogd(prvTxt);
+						spLog("Too many indicators set (" + cntKeysSet + "). Releasing all and resetting.");
+						cntConsistent = 0;
+					}
+				}
+				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
+					//spLogd(showthis);
+					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
+							"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
+							" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
+					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
+					extralogtime = System.currentTimeMillis() + 100;
+				}
+
+				if (cntConsistent > 10) {
+					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
+					if (!curPxBinString.equals(prvPxBinString)) {
+						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
+						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
+						txt += "\t" + "px1Bin:" + curPxBinString;
+						for (KeyMapEntry pme : tKeyMapEntries) {
+							txt += pme.reportIfChanged(aCurPx);
+							pme.performIfChanged(aCurPx, robot);
+							//	{
+							//		char cur = aCurPx[pme.idx];
+							//		if (pme.prvState == RELEASED & cur == PRESSED) robot.keyPress(pme.keycode);
+							//		else if (pme.prvState == PRESSED & cur == RELEASED) robot.keyRelease(pme.keycode);
+							//		pme.prvState = cur;
+							//	}
+							pme.prvState = aCurPx[pme.idx];
+						}
+						for (MouseMapEntry pme : tMouseMapEntries) {
+							txt += pme.reportIfChanged(aCurPx);
+							pme.performIfChanged(aCurPx, robot);
+							pme.prvState = aCurPx[pme.idx];
+						}
+						txt += "\t" + "cycle:" + (System.currentTimeMillis() - cycleBeginTime);
+						//spLogd(new StringBuilder().append(cycleTotTime).append(") ").append(txt).toString());
+						spLog(txt);
+						prvPxBinString = curPxBinString;
+					}
+
+				} else releaseAll();
+				cycleEndTime = System.currentTimeMillis();
+				cycleTotTime = cycleEndTime - cycleBeginTime;
+				if (cycleTotTime < loopMinTime) Thread.sleep(loopMinTime - cycleTotTime);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+	}
+	
+	private static void listKeyEventConstants() { // list out the constants
+		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
+		for (Field f : fields) {
+			if (Modifier.isStatic(f.getModifiers())) {
+				try {
+					System.out.println(f.getInt(f.getName()) + "\t" + f.getName());
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	private static void releaseAll() {
 		try {
 			final char[] aCharAllReleased = new char[200]; // or 1 + max idx watched in tMouseMapEntries
@@ -57,97 +194,6 @@ public class PixelsToKeys extends JFrame {
 			spLog(e.toString());
 			e.printStackTrace();
 		}
-	}
-
-	public static void main(String args[]) {
-		for (String arg : args) {
-			if (arg.equalsIgnoreCase("W")) doShowWindow = true;
-			if (arg.equalsIgnoreCase("NW")) doShowWindow = false;
-			if (arg.equalsIgnoreCase("L")) doLogFile = true;
-			if (arg.equalsIgnoreCase("NL")) doLogFile = false;
-		}
-
-		doLogFile = true;
-
-		if (false) {
-			spLog("begin thread call");
-			new Thread(taskMouseMove).start();
-			spLog("end thread call");
-
-			try { // shortly run two commands
-				Robot robot = new Robot();
-				tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_TAB, "VK_TAB"));
-				tMouseMapEntries.add(new MouseMapEntry(121, 9, "VM_MOVE_RIGHT"));
-
-				final char[] aTmpCharInd = new char[200];
-				for (int i = 0; i < aTmpCharInd.length; i++)
-					aTmpCharInd[i] = RELEASED;
-				spLog("begin");
-
-				aTmpCharInd[2 - 1] = PRESSED;
-				aTmpCharInd[121 - 1] = PRESSED;
-
-				tKeyMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tKeyMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tKeyMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-				tMouseMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tMouseMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tMouseMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-
-				spLog("before delay");
-				robot.delay(100);
-				spLog("after delay");
-
-				aTmpCharInd[2 - 1] = RELEASED;
-				aTmpCharInd[121 - 1] = RELEASED;
-
-				tKeyMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tKeyMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tKeyMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-				tMouseMapEntries.forEach(pme -> spLog(pme.reportIfChanged(aTmpCharInd)));
-				tMouseMapEntries.forEach(pme -> pme.performIfChanged(aTmpCharInd, robot));
-				tMouseMapEntries.forEach(pme -> pme.prvState = aTmpCharInd[pme.idx]);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				spLog(e.toString());
-			}
-			spLog("done");
-
-			return;
-		}
-
-		if (false) { // list out the constants
-			Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
-			for (Field f : fields) {
-				if (Modifier.isStatic(f.getModifiers())) {
-					try {
-						System.out.println(f.getInt(f.getName()) + "\t" + f.getName());
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			return;
-		}
-
-		if (doShowWindow) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					new PixelsToKeys().setVisible(true);
-				}
-			});
-		}
-
-		//loadKeyMap();
-		setKeyMap();
-
-		spLog("begin thread call");
-		new Thread(taskPressKeys).start();
-		new Thread(taskMouseMove).start();
-		spLog("end thread call");
 	}
 
 	static private class KeyMapEntry {
@@ -267,15 +313,6 @@ public class PixelsToKeys extends JFrame {
 		}
 	}
 
-	private static String getRegSubstr(String haystack, String needle) {
-		String retval = "";
-		Pattern pattern = Pattern.compile(needle + ".*");
-		Matcher matcher = pattern.matcher(haystack);
-		if (matcher.matches()) retval = matcher.group(1);
-		return retval;
-
-	}
-
 	private static String getMouseCoordsString() {
 		Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
 		return new StringBuilder().append("(").append(mouseLoc.x).append(",").append(mouseLoc.y).append(")").toString();
@@ -285,58 +322,6 @@ public class PixelsToKeys extends JFrame {
 		String val = color;
 		if (val.length() > 6) val = val.substring(val.length() - 6);
 		return Integer.parseUnsignedInt("ff" + val, 16);
-	}
-
-	private static void loadKeyMap() {
-		// ConstantPixel = 0x010203
-		// ConstantLocX = 0
-		// ConstantLocY = 5
-		// KeyMapValues = 87 w, 83 s, 65 a, 68 d, 69 e, 88 x
-		// MouseMapValues = mousebtn1, mousebtn2, mousebtn3, leftmouse, upspeed1, downspeed1, leftspeed1, rightspeed1
-		File mapFile = new File("PixelsToKeys.txt");
-		if (!mapFile.exists()) {
-			File dir = new File((new File("")).getAbsolutePath());
-			File[] aFiles = dir.listFiles((dir1, name) -> name.endsWith(".config"));
-			if (aFiles.length > 0) mapFile = aFiles[0];
-		}
-		spLog("Config File = " + mapFile.getName());
-		if (mapFile.exists()) {
-			try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(mapFile)))) {
-				String line;
-				while ((line = bufferedReader.readLine()) != null) {
-					spLog(line);
-					if (line.contains("=")) {
-						String field = line.substring(1, line.indexOf("=") + 1).trim();
-						if (line.toUpperCase().trim().startsWith("ConstantPixel".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\w+)"); // word
-							//if (val.length() > 6) val = val.substring(val.length() - 6);
-							//constantPixel = Integer.parseUnsignedInt("ff" + val, 16);
-							constantPixel = getHexColorToInt(val);
-							spLog("ConstantPixel=" + constantPixel);
-						} else if (line.toUpperCase().trim().startsWith("ConstantLocX".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\d+)"); // digit
-							if (!val.isEmpty()) constantLocX = Integer.parseInt(val);
-							spLog("ConstantLocX=" + constantLocX);
-						} else if (line.toUpperCase().trim().startsWith("ConstantLocY".toUpperCase())) {
-							String val = line.substring(line.indexOf("=") + 1).trim();
-							val = getRegSubstr(val, "(\\d+)"); // digit
-							if (!val.isEmpty()) constantLocY = Integer.parseInt(val);
-							spLog("ConstantLocY=" + constantLocY);
-						} else if (line.toUpperCase().trim().startsWith("KeyMapValues".toUpperCase())) {
-							//
-						} else if (line.toUpperCase().trim().startsWith("MouseMapValues".toUpperCase())) {
-							//
-						}
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private static void setKeyMap() {
@@ -476,132 +461,20 @@ public class PixelsToKeys extends JFrame {
 			Collections.sort(tKeyMapEntries, Comparator.comparing(pme -> pme.idx));
 			Collections.sort(tMouseMapEntries, Comparator.comparing(pme -> pme.idx));
 			Collections.sort(tUnknownMapEntries);
-
-			ArrayList<KeyMapEntry> tKeyMap = tKeyMapEntries;
-			ArrayList<MouseMapEntry> tMouseMap = tMouseMapEntries;
 			ArrayList<Integer> tKnownMap = new ArrayList<>();
 
 			for (KeyMapEntry pme : tKeyMapEntries)
 				tKnownMap.add(pme.idx);
 			for (MouseMapEntry pme : tMouseMapEntries)
 				tKnownMap.add(pme.idx);
+			Collections.sort(tKnownMap);
+			Collections.sort(tUnknownMapEntries);
 			tUnknownMapEntries.removeAll(tKnownMap);
 		}
 
 	}
 
-	static Runnable taskPressKeys = () -> {
-		try {
-			long cycleEndTime = System.currentTimeMillis(), cycleBeginTime = cycleEndTime, cycleTotTime = cycleEndTime - cycleBeginTime;
-			Robot robot = new Robot();
-			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
-			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
-			int cntConsistent = 0;
-			long extralogtime = -1; // remove
-			String txt = "";
-			String curPxBinString = "", prvPxBinString = curPxBinString;
-			ArrayList<String> tPreviousInds = new ArrayList<>();
-			while (true) {
-				cycleBeginTime = System.currentTimeMillis();
-				tmpcap = robot.createScreenCapture(rect);
-				int rgb0 = tmpcap.getRGB(0, 0);
-				int rgb1 = tmpcap.getRGB(1, 0);
-				int rgb2 = tmpcap.getRGB(2, 0);
-				int rgb3 = tmpcap.getRGB(3, 0);
-				int rgb4 = tmpcap.getRGB(4, 0);
-				int rgb5 = tmpcap.getRGB(5, 0);
-				int rgb6 = tmpcap.getRGB(6, 0);
-				int rgb7 = tmpcap.getRGB(7, 0);
-				curPxBinString = Integer.toBinaryString(rgb1).substring(8)//
-						+ Integer.toBinaryString(rgb2).substring(8)//
-						+ Integer.toBinaryString(rgb3).substring(8)//
-						+ Integer.toBinaryString(rgb4).substring(8)//
-						+ Integer.toBinaryString(rgb5).substring(8)//
-						+ Integer.toBinaryString(rgb6).substring(8);
-				//String showthis = Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7);
-				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
-				while (tPreviousInds.size() > 10)
-					tPreviousInds.remove(0);
-				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
-				if (rgb0 == constantPixel & rgb7 == constantEndPixel) { // Once we've had both constants AND all 0 for 10 checks, we can start looking for pixels.
-					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
-					else if (rgb2 == rgb1 & rgb3 == rgb1 & rgb4 == rgb1 & rgb5 == rgb1 & rgb6 == rgb1) { // faceroll check
-						// reset the constant counter if all are off 0 by the same amount
-						for (String prvTxt : tPreviousInds)
-							spLogd(prvTxt);
-						spLog("All are off 0 by the same amount. Releasing all and resetting.");
-						cntConsistent = 0;
-					}
-				} else cntConsistent = 0;
-				char[] aCurPx = curPxBinString.toCharArray();
-
-				if (cntConsistent > 10) { // faceroll check
-					for (Integer unkIdx : tUnknownMapEntries) {
-						if (aCurPx[unkIdx] == PRESSED) {
-							for (String prvTxt : tPreviousInds)
-								spLogd(prvTxt);
-							spLog("Unknown Index " + unkIdx + " is set. Releasing all and resetting.");
-							cntConsistent = 0;
-						}
-					}
-				}
-				if (cntConsistent > 10) { // faceroll check
-					int cntKeysSet = 0;
-					for (char c : aCurPx)
-						if (c == PRESSED) cntKeysSet++;
-					if (cntKeysSet >= 5) {
-						for (String prvTxt : tPreviousInds)
-							spLogd(prvTxt);
-						spLog("Too many indicators set (" + cntKeysSet + "). Releasing all and resetting.");
-						cntConsistent = 0;
-					}
-				}
-				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
-					//spLogd(showthis);
-					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
-							"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
-							" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
-					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
-					extralogtime = System.currentTimeMillis() + 100;
-				}
-
-				if (cntConsistent > 10) {
-					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
-					if (!curPxBinString.equals(prvPxBinString)) {
-						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
-						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
-						txt += "\t" + "px1Bin:" + curPxBinString;
-						for (KeyMapEntry pme : tKeyMapEntries) {
-							txt += pme.reportIfChanged(aCurPx);
-							pme.performIfChanged(aCurPx, robot);
-							//	{
-							//		char cur = aCurPx[pme.idx];
-							//		if (pme.prvState == RELEASED & cur == PRESSED) robot.keyPress(pme.keycode);
-							//		else if (pme.prvState == PRESSED & cur == RELEASED) robot.keyRelease(pme.keycode);
-							//		pme.prvState = cur;
-							//	}
-							pme.prvState = aCurPx[pme.idx];
-						}
-						for (MouseMapEntry pme : tMouseMapEntries) {
-							txt += pme.reportIfChanged(aCurPx);
-							pme.performIfChanged(aCurPx, robot);
-							pme.prvState = aCurPx[pme.idx];
-						}
-						txt += "\t" + "cycle:" + (System.currentTimeMillis() - cycleBeginTime);
-						//spLogd(new StringBuilder().append(cycleTotTime).append(") ").append(txt).toString());
-						spLog(txt);
-						prvPxBinString = curPxBinString;
-					}
-
-				} else releaseAll();
-				cycleEndTime = System.currentTimeMillis();
-				cycleTotTime = cycleEndTime - cycleBeginTime;
-				if (cycleTotTime < loopMinTime) Thread.sleep(loopMinTime - cycleTotTime);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	};
+	static Runnable taskPressKeys = () -> {};
 
 	static Runnable taskMouseMove = () -> {
 		try {
@@ -619,135 +492,6 @@ public class PixelsToKeys extends JFrame {
 		}
 	};
 
-	public PixelsToKeys() {
-		spLog("begin PixelsToKeys");
-		initComponents();
-		spLog("end PixelsToKeys");
-	}
-
-	private void initComponents() {
-		jPanel2 = new Panel2();
-		jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel2.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		jPanel2.setFocusable(true);
-		jPanel2.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				lastReleasedKeyCode = arg0.getKeyCode();
-				spLogd("keyReleased: " + arg0.getKeyCode());
-				repaint();
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-			}
-		});
-		this.setContentPane(jPanel2); // add the component to the frame to see it!
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // be nice to testers..
-		pack();
-
-		spLog("end initComponents");
-	}
-
-	private JPanel jPanel2;
-
-	class Panel2 extends JPanel {
-		Panel2() {
-			setPreferredSize(new Dimension(prefWidth, prefHeight)); // set a preferred size for the custom panel.
-			if(true){
-				iconImage = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("icon.png"));
-				try {
-					spLog("setting look and feel");
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch (Exception e) {
-					spLog("Unable to set LookAndFeel");
-				}
-				if (SystemTray.isSupported()) {
-					spLog("SystemTray.isSupported():" + SystemTray.isSupported());
-					tray = SystemTray.getSystemTray();
-					ActionListener exitListener = new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							spLog("Exiting....");
-							System.exit(0);
-						}
-					};
-					PopupMenu popup = new PopupMenu();
-					MenuItem defaultItem = new MenuItem("Exit");
-					defaultItem.addActionListener(exitListener);
-					popup.add(defaultItem);
-					defaultItem = new MenuItem("Open");
-					defaultItem.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							setVisible(true);
-							setExtendedState(JFrame.NORMAL);
-						}
-					});
-					popup.add(defaultItem);
-					trayIcon = new TrayIcon(iconImage, "PixelsToKeys", popup);
-					trayIcon.setImageAutoSize(true);
-					spLog("trayIcon:" + trayIcon.getToolTip());
-				}
-
-				addWindowStateListener(new WindowStateListener() {
-					public void windowStateChanged(WindowEvent e) {
-						if (e.getNewState() == ICONIFIED) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to tray");
-							}
-						}
-						if (e.getNewState() == 7) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to system tray");
-							}
-						}
-						if (e.getNewState() == MAXIMIZED_BOTH) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
-						}
-						if (e.getNewState() == NORMAL) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
-						}
-					}
-				});
-				setIconImage(iconImage);
-
-				setVisible(true);
-				setSize(300, 200);
-				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				
-			}
-
-		}
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-
-			int canvasWidth = (int) g.getClipBounds().getWidth(), canvasHeight = (int) g.getClipBounds().getHeight();
-			spLogd("paintComponent: " + canvasWidth + " x " + canvasHeight);
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, canvasWidth, canvasHeight);
-			g.setColor(Color.BLACK);
-			g.setFont(prefFont);
-			g.drawString("lastReleasedKeyCode:" + lastReleasedKeyCode, 10, 30);
-
-		}
-	}
 
 	//------------------
 	public static long msLogTime = System.currentTimeMillis();
@@ -772,7 +516,7 @@ public class PixelsToKeys extends JFrame {
 	}
 
 	public synchronized static void spLogd(String txt) {
-		if (doLogFile) {
+		if(doLogFile){
 			sbLog.append(txt).append("\n");
 			System.out.println(txt);
 			if (fwLogFileWriter == null) {

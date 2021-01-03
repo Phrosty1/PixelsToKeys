@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,9 +23,6 @@ import javax.swing.border.*;
 //import static liblaughlog.Utils.Log.*;
 
 public class PixelsToKeys extends JFrame {
-	static TrayIcon trayIcon;
-	static SystemTray tray;
-	static Image iconImage;
 	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
 	static boolean doShowWindow = true;
 	static boolean doLogFile = false;
@@ -66,8 +62,6 @@ public class PixelsToKeys extends JFrame {
 			if (arg.equalsIgnoreCase("L")) doLogFile = true;
 			if (arg.equalsIgnoreCase("NL")) doLogFile = false;
 		}
-
-		doLogFile = true;
 
 		if (false) {
 			spLog("begin thread call");
@@ -496,8 +490,16 @@ public class PixelsToKeys extends JFrame {
 			Robot robot = new Robot();
 			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
 			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
+			int prvRGB0 = tmpcap.getRGB(0, 0);
+			int prvRGB1 = tmpcap.getRGB(1, 0);
+			int prvRGB2 = tmpcap.getRGB(2, 0);
+			int prvRGB3 = tmpcap.getRGB(3, 0);
+			int prvRGB4 = tmpcap.getRGB(4, 0);
+			int prvRGB5 = tmpcap.getRGB(5, 0);
+			int prvRGB6 = tmpcap.getRGB(6, 0);
+			int prvRGB7 = tmpcap.getRGB(7, 0);
 			int cntConsistent = 0;
-			long extralogtime = -1; // remove
+			long extralogtime = 0; // remove
 			String txt = "";
 			String curPxBinString = "", prvPxBinString = curPxBinString;
 			ArrayList<String> tPreviousInds = new ArrayList<>();
@@ -556,13 +558,13 @@ public class PixelsToKeys extends JFrame {
 						cntConsistent = 0;
 					}
 				}
-				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
+				if (cycleBeginTime > extralogtime) { // remove
 					//spLogd(showthis);
 					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
 							"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
 							" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
 					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
-					extralogtime = System.currentTimeMillis() + 100;
+					extralogtime = System.currentTimeMillis() + 500;
 				}
 
 				if (cntConsistent > 10) {
@@ -658,80 +660,6 @@ public class PixelsToKeys extends JFrame {
 	class Panel2 extends JPanel {
 		Panel2() {
 			setPreferredSize(new Dimension(prefWidth, prefHeight)); // set a preferred size for the custom panel.
-			if(true){
-				iconImage = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("icon.png"));
-				try {
-					spLog("setting look and feel");
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch (Exception e) {
-					spLog("Unable to set LookAndFeel");
-				}
-				if (SystemTray.isSupported()) {
-					spLog("SystemTray.isSupported():" + SystemTray.isSupported());
-					tray = SystemTray.getSystemTray();
-					ActionListener exitListener = new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							spLog("Exiting....");
-							System.exit(0);
-						}
-					};
-					PopupMenu popup = new PopupMenu();
-					MenuItem defaultItem = new MenuItem("Exit");
-					defaultItem.addActionListener(exitListener);
-					popup.add(defaultItem);
-					defaultItem = new MenuItem("Open");
-					defaultItem.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							setVisible(true);
-							setExtendedState(JFrame.NORMAL);
-						}
-					});
-					popup.add(defaultItem);
-					trayIcon = new TrayIcon(iconImage, "PixelsToKeys", popup);
-					trayIcon.setImageAutoSize(true);
-					spLog("trayIcon:" + trayIcon.getToolTip());
-				}
-
-				addWindowStateListener(new WindowStateListener() {
-					public void windowStateChanged(WindowEvent e) {
-						if (e.getNewState() == ICONIFIED) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to tray");
-							}
-						}
-						if (e.getNewState() == 7) {
-							try {
-								tray.add(trayIcon);
-								setVisible(false);
-								spLog("added to SystemTray");
-							} catch (AWTException ex) {
-								spLog("unable to add to system tray");
-							}
-						}
-						if (e.getNewState() == MAXIMIZED_BOTH) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
-						}
-						if (e.getNewState() == NORMAL) {
-							tray.remove(trayIcon);
-							setVisible(true);
-							spLog("Tray icon removed");
-						}
-					}
-				});
-				setIconImage(iconImage);
-
-				setVisible(true);
-				setSize(300, 200);
-				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				
-			}
-
 		}
 
 		@Override
@@ -772,7 +700,7 @@ public class PixelsToKeys extends JFrame {
 	}
 
 	public synchronized static void spLogd(String txt) {
-		if (doLogFile) {
+		if(doLogFile){
 			sbLog.append(txt).append("\n");
 			System.out.println(txt);
 			if (fwLogFileWriter == null) {
