@@ -28,7 +28,7 @@ public class PixelsToKeys extends JFrame {
 	static SystemTray tray;
 	static Image iconImage;
 	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
-	static boolean doLogFile = false;
+	static boolean doLogFile = true;
 	static boolean doKeys = true;
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
@@ -451,7 +451,6 @@ public class PixelsToKeys extends JFrame {
 						if (aRGB[x] == aClear[i++]) cntClear++;
 					if (cntClear == aLocPx.length) cntConsistent++;
 					else cntConsistent = 0;
-					spLog(" FINDME cntClear:" + cntClear + " cntConsistent:" + cntConsistent);
 					fillArrFromBuffer(robot.createScreenCapture(rect), aRGB);
 				}
 				if (cntConsistent >= cntConsistentNeeded) spLog(" FINDME reached " + cntConsistentNeeded + " empty command calls");
@@ -470,6 +469,10 @@ public class PixelsToKeys extends JFrame {
 					}
 					long cycleBeginTime = System.currentTimeMillis();
 					//String txt = "";
+					if (aRGB[aLocPx[0]] != clearOdd & aRGB[aLocPx[0]] != clearEven & //
+							(aRGB[aLocPx[0]] == aRGB[aLocPx[1]] | aRGB[aLocPx[0]] == aRGB[aLocPx[2]] | aRGB[aLocPx[0]] == aRGB[aLocPx[3]] | aRGB[aLocPx[0]] == aRGB[aLocPx[4]] | aRGB[aLocPx[0]] == aRGB[aLocPx[5]])) break;
+					if (aRGB[aLocPx[1]] != clearOdd & aRGB[aLocPx[1]] != clearEven & //
+							(aRGB[aLocPx[1]] == aRGB[aLocPx[2]] | aRGB[aLocPx[1]] == aRGB[aLocPx[3]] | aRGB[aLocPx[1]] == aRGB[aLocPx[4]] | aRGB[aLocPx[1]] == aRGB[aLocPx[5]])) break;
 					curPxBinString = Integer.toBinaryString(aRGB[aLocPx[0]]).substring(8)//
 							+ Integer.toBinaryString(aRGB[aLocPx[1]]).substring(8)//
 							+ Integer.toBinaryString(aRGB[aLocPx[2]]).substring(8)//
