@@ -29,6 +29,7 @@ public class PixelsToKeys extends JFrame {
 	static Image iconImage;
 	//https://stackoverflow.com/questions/7461477/how-to-hide-a-jframe-in-system-tray-of-taskbar
 	static boolean doLogFile = false;
+	static boolean doKeys = true;
 	static int constantPixel = getHexColorToInt("0x010203");
 	static int constantEndPixel = getHexColorToInt("0x030201");
 	static int constantLocX = 3, constantLocY = 0, cntDataPixels = 6; // constantPixel,data1,data2,data3,data4,data5,data6,constantEndPixel
@@ -81,7 +82,7 @@ public class PixelsToKeys extends JFrame {
 		new Thread(taskMouseMove).start();
 		spLog("end thread call");
 	}
-	
+
 	private static void listKeyEventConstants() { // list out the constants
 		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
 		for (Field f : fields) {
@@ -238,132 +239,138 @@ public class PixelsToKeys extends JFrame {
 		tKeyMapEntries.clear();
 		tMouseMapEntries.clear();
 		tUnknownMapEntries.clear();
-		{
-			tKeyMapEntries.add(new KeyMapEntry(0, KeyEvent.VK_BACK_SPACE, "VK_BACK_SPACE"));
-			tKeyMapEntries.add(new KeyMapEntry(1, KeyEvent.VK_TAB, "VK_TAB"));
-			tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_ENTER, "VK_ENTER"));
-			tKeyMapEntries.add(new KeyMapEntry(3, KeyEvent.VK_CLEAR, "VK_CLEAR"));
-			tKeyMapEntries.add(new KeyMapEntry(4, KeyEvent.VK_SHIFT, "VK_SHIFT"));
-			tKeyMapEntries.add(new KeyMapEntry(5, KeyEvent.VK_CONTROL, "VK_CONTROL"));
-			tKeyMapEntries.add(new KeyMapEntry(6, KeyEvent.VK_ALT, "VK_ALT"));
-			tKeyMapEntries.add(new KeyMapEntry(7, KeyEvent.VK_PAUSE, "VK_PAUSE"));
-			tKeyMapEntries.add(new KeyMapEntry(8, KeyEvent.VK_CAPS_LOCK, "VK_CAPS_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(9, KeyEvent.VK_ESCAPE, "VK_ESCAPE"));
-			tKeyMapEntries.add(new KeyMapEntry(10, KeyEvent.VK_SPACE, "VK_SPACE"));
-			tKeyMapEntries.add(new KeyMapEntry(11, KeyEvent.VK_PAGE_UP, "VK_PAGE_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(12, KeyEvent.VK_PAGE_DOWN, "VK_PAGE_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(13, KeyEvent.VK_END, "VK_END"));
-			tKeyMapEntries.add(new KeyMapEntry(14, KeyEvent.VK_HOME, "VK_HOME"));
-			tKeyMapEntries.add(new KeyMapEntry(15, KeyEvent.VK_LEFT, "VK_LEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(16, KeyEvent.VK_UP, "VK_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(17, KeyEvent.VK_RIGHT, "VK_RIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(18, KeyEvent.VK_DOWN, "VK_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(19, KeyEvent.VK_COMMA, "VK_COMMA"));
-			tKeyMapEntries.add(new KeyMapEntry(20, KeyEvent.VK_MINUS, "VK_MINUS"));
-			tKeyMapEntries.add(new KeyMapEntry(21, KeyEvent.VK_PERIOD, "VK_PERIOD"));
-			tKeyMapEntries.add(new KeyMapEntry(22, KeyEvent.VK_SLASH, "VK_SLASH"));
-			tKeyMapEntries.add(new KeyMapEntry(23, KeyEvent.VK_0, "VK_0"));
-			tKeyMapEntries.add(new KeyMapEntry(24, KeyEvent.VK_1, "VK_1"));
-			tKeyMapEntries.add(new KeyMapEntry(25, KeyEvent.VK_2, "VK_2"));
-			tKeyMapEntries.add(new KeyMapEntry(26, KeyEvent.VK_3, "VK_3"));
-			tKeyMapEntries.add(new KeyMapEntry(27, KeyEvent.VK_4, "VK_4"));
-			tKeyMapEntries.add(new KeyMapEntry(28, KeyEvent.VK_5, "VK_5"));
-			tKeyMapEntries.add(new KeyMapEntry(29, KeyEvent.VK_6, "VK_6"));
-			tKeyMapEntries.add(new KeyMapEntry(30, KeyEvent.VK_7, "VK_7"));
-			tKeyMapEntries.add(new KeyMapEntry(31, KeyEvent.VK_8, "VK_8"));
-			tKeyMapEntries.add(new KeyMapEntry(32, KeyEvent.VK_9, "VK_9"));
-			tKeyMapEntries.add(new KeyMapEntry(33, KeyEvent.VK_SEMICOLON, "VK_SEMICOLON"));
-			tKeyMapEntries.add(new KeyMapEntry(34, KeyEvent.VK_EQUALS, "VK_EQUALS"));
-			tKeyMapEntries.add(new KeyMapEntry(35, KeyEvent.VK_A, "VK_A"));
-			tKeyMapEntries.add(new KeyMapEntry(36, KeyEvent.VK_B, "VK_B"));
-			tKeyMapEntries.add(new KeyMapEntry(37, KeyEvent.VK_C, "VK_C"));
-			tKeyMapEntries.add(new KeyMapEntry(38, KeyEvent.VK_D, "VK_D"));
-			tKeyMapEntries.add(new KeyMapEntry(39, KeyEvent.VK_E, "VK_E"));
-			tKeyMapEntries.add(new KeyMapEntry(40, KeyEvent.VK_F, "VK_F"));
-			tKeyMapEntries.add(new KeyMapEntry(41, KeyEvent.VK_G, "VK_G"));
-			tKeyMapEntries.add(new KeyMapEntry(42, KeyEvent.VK_H, "VK_H"));
-			tKeyMapEntries.add(new KeyMapEntry(43, KeyEvent.VK_I, "VK_I"));
-			tKeyMapEntries.add(new KeyMapEntry(44, KeyEvent.VK_J, "VK_J"));
-			tKeyMapEntries.add(new KeyMapEntry(45, KeyEvent.VK_K, "VK_K"));
-			tKeyMapEntries.add(new KeyMapEntry(46, KeyEvent.VK_L, "VK_L"));
-			tKeyMapEntries.add(new KeyMapEntry(47, KeyEvent.VK_M, "VK_M"));
-			tKeyMapEntries.add(new KeyMapEntry(48, KeyEvent.VK_N, "VK_N"));
-			tKeyMapEntries.add(new KeyMapEntry(49, KeyEvent.VK_O, "VK_O"));
-			tKeyMapEntries.add(new KeyMapEntry(50, KeyEvent.VK_P, "VK_P"));
-			tKeyMapEntries.add(new KeyMapEntry(51, KeyEvent.VK_Q, "VK_Q"));
-			tKeyMapEntries.add(new KeyMapEntry(52, KeyEvent.VK_R, "VK_R"));
-			tKeyMapEntries.add(new KeyMapEntry(53, KeyEvent.VK_S, "VK_S"));
-			tKeyMapEntries.add(new KeyMapEntry(54, KeyEvent.VK_T, "VK_T"));
-			tKeyMapEntries.add(new KeyMapEntry(55, KeyEvent.VK_U, "VK_U"));
-			tKeyMapEntries.add(new KeyMapEntry(56, KeyEvent.VK_V, "VK_V"));
-			tKeyMapEntries.add(new KeyMapEntry(57, KeyEvent.VK_W, "VK_W"));
-			tKeyMapEntries.add(new KeyMapEntry(58, KeyEvent.VK_X, "VK_X"));
-			tKeyMapEntries.add(new KeyMapEntry(59, KeyEvent.VK_Y, "VK_Y"));
-			tKeyMapEntries.add(new KeyMapEntry(60, KeyEvent.VK_Z, "VK_Z"));
-			tKeyMapEntries.add(new KeyMapEntry(61, KeyEvent.VK_OPEN_BRACKET, "VK_OPEN_BRACKET"));
-			tKeyMapEntries.add(new KeyMapEntry(62, KeyEvent.VK_BACK_SLASH, "VK_BACK_SLASH"));
-			tKeyMapEntries.add(new KeyMapEntry(63, KeyEvent.VK_CLOSE_BRACKET, "VK_CLOSE_BRACKET"));
-			tKeyMapEntries.add(new KeyMapEntry(64, KeyEvent.VK_NUMPAD0, "VK_NUMPAD0"));
-			tKeyMapEntries.add(new KeyMapEntry(65, KeyEvent.VK_NUMPAD1, "VK_NUMPAD1"));
-			tKeyMapEntries.add(new KeyMapEntry(66, KeyEvent.VK_NUMPAD2, "VK_NUMPAD2"));
-			tKeyMapEntries.add(new KeyMapEntry(67, KeyEvent.VK_NUMPAD3, "VK_NUMPAD3"));
-			tKeyMapEntries.add(new KeyMapEntry(68, KeyEvent.VK_NUMPAD4, "VK_NUMPAD4"));
-			tKeyMapEntries.add(new KeyMapEntry(69, KeyEvent.VK_NUMPAD5, "VK_NUMPAD5"));
-			tKeyMapEntries.add(new KeyMapEntry(70, KeyEvent.VK_NUMPAD6, "VK_NUMPAD6"));
-			tKeyMapEntries.add(new KeyMapEntry(71, KeyEvent.VK_NUMPAD7, "VK_NUMPAD7"));
-			tKeyMapEntries.add(new KeyMapEntry(72, KeyEvent.VK_NUMPAD8, "VK_NUMPAD8"));
-			tKeyMapEntries.add(new KeyMapEntry(73, KeyEvent.VK_NUMPAD9, "VK_NUMPAD9"));
-			tKeyMapEntries.add(new KeyMapEntry(74, KeyEvent.VK_MULTIPLY, "VK_MULTIPLY"));
-			tKeyMapEntries.add(new KeyMapEntry(75, KeyEvent.VK_ADD, "VK_ADD"));
-			tKeyMapEntries.add(new KeyMapEntry(76, KeyEvent.VK_SEPARATER, "VK_SEPARATER"));
-			tKeyMapEntries.add(new KeyMapEntry(77, KeyEvent.VK_SEPARATOR, "VK_SEPARATOR"));
-			tKeyMapEntries.add(new KeyMapEntry(78, KeyEvent.VK_SUBTRACT, "VK_SUBTRACT"));
-			tKeyMapEntries.add(new KeyMapEntry(79, KeyEvent.VK_DECIMAL, "VK_DECIMAL"));
-			tKeyMapEntries.add(new KeyMapEntry(80, KeyEvent.VK_DIVIDE, "VK_DIVIDE"));
-			tKeyMapEntries.add(new KeyMapEntry(81, KeyEvent.VK_F1, "VK_F1"));
-			tKeyMapEntries.add(new KeyMapEntry(82, KeyEvent.VK_F2, "VK_F2"));
-			tKeyMapEntries.add(new KeyMapEntry(83, KeyEvent.VK_F3, "VK_F3"));
-			tKeyMapEntries.add(new KeyMapEntry(84, KeyEvent.VK_F4, "VK_F4"));
-			tKeyMapEntries.add(new KeyMapEntry(85, KeyEvent.VK_F5, "VK_F5"));
-			tKeyMapEntries.add(new KeyMapEntry(86, KeyEvent.VK_F6, "VK_F6"));
-			tKeyMapEntries.add(new KeyMapEntry(87, KeyEvent.VK_F7, "VK_F7"));
-			tKeyMapEntries.add(new KeyMapEntry(88, KeyEvent.VK_F8, "VK_F8"));
-			tKeyMapEntries.add(new KeyMapEntry(89, KeyEvent.VK_F9, "VK_F9"));
-			tKeyMapEntries.add(new KeyMapEntry(90, KeyEvent.VK_F10, "VK_F10"));
-			tKeyMapEntries.add(new KeyMapEntry(91, KeyEvent.VK_F11, "VK_F11"));
-			tKeyMapEntries.add(new KeyMapEntry(92, KeyEvent.VK_F12, "VK_F12"));
-			tKeyMapEntries.add(new KeyMapEntry(93, KeyEvent.VK_DELETE, "VK_DELETE"));
-			tKeyMapEntries.add(new KeyMapEntry(94, KeyEvent.VK_NUM_LOCK, "VK_NUM_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(95, KeyEvent.VK_SCROLL_LOCK, "VK_SCROLL_LOCK"));
-			tKeyMapEntries.add(new KeyMapEntry(96, KeyEvent.VK_AMPERSAND, "VK_AMPERSAND"));
-			tKeyMapEntries.add(new KeyMapEntry(97, KeyEvent.VK_ASTERISK, "VK_ASTERISK"));
-			tKeyMapEntries.add(new KeyMapEntry(98, KeyEvent.VK_QUOTEDBL, "VK_QUOTEDBL"));
-			tKeyMapEntries.add(new KeyMapEntry(99, KeyEvent.VK_LESS, "VK_LESS"));
-			tKeyMapEntries.add(new KeyMapEntry(100, KeyEvent.VK_PRINTSCREEN, "VK_PRINTSCREEN"));
-			tKeyMapEntries.add(new KeyMapEntry(101, KeyEvent.VK_INSERT, "VK_INSERT"));
-			tKeyMapEntries.add(new KeyMapEntry(102, KeyEvent.VK_GREATER, "VK_GREATER"));
-			tKeyMapEntries.add(new KeyMapEntry(103, KeyEvent.VK_BRACELEFT, "VK_BRACELEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(104, KeyEvent.VK_BRACERIGHT, "VK_BRACERIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(105, KeyEvent.VK_BACK_QUOTE, "VK_BACK_QUOTE"));
-			tKeyMapEntries.add(new KeyMapEntry(106, KeyEvent.VK_QUOTE, "VK_QUOTE"));
-			tKeyMapEntries.add(new KeyMapEntry(107, KeyEvent.VK_KP_UP, "VK_KP_UP"));
-			tKeyMapEntries.add(new KeyMapEntry(108, KeyEvent.VK_KP_DOWN, "VK_KP_DOWN"));
-			tKeyMapEntries.add(new KeyMapEntry(109, KeyEvent.VK_KP_LEFT, "VK_KP_LEFT"));
-			tKeyMapEntries.add(new KeyMapEntry(110, KeyEvent.VK_KP_RIGHT, "VK_KP_RIGHT"));
-			tKeyMapEntries.add(new KeyMapEntry(111, KeyEvent.VK_WINDOWS, "VK_WINDOWS"));
-			tMouseMapEntries.add(new MouseMapEntry(112, 1, "VM_BTN_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(113, 2, "VM_BTN_MIDDLE"));
-			tMouseMapEntries.add(new MouseMapEntry(114, 3, "VM_BTN_RIGHT"));
-			tMouseMapEntries.add(new MouseMapEntry(115, 4, "VM_WHEEL_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(116, 5, "VM_WHEEL_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(117, 6, "VM_MOVE_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(118, 7, "VM_MOVE_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(119, 8, "VM_MOVE_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(120, 9, "VM_MOVE_RIGHT"));
-			tMouseMapEntries.add(new MouseMapEntry(121, 10, "VM_MOVE_10_UP"));
-			tMouseMapEntries.add(new MouseMapEntry(122, 11, "VM_MOVE_10_DOWN"));
-			tMouseMapEntries.add(new MouseMapEntry(123, 12, "VM_MOVE_10_LEFT"));
-			tMouseMapEntries.add(new MouseMapEntry(124, 13, "VM_MOVE_10_RIGHT"));
+		{ // reserved                        0  
+			tKeyMapEntries.add(new KeyMapEntry(1, KeyEvent.VK_BACK_SPACE, "VK_BACK_SPACE"));
+			tKeyMapEntries.add(new KeyMapEntry(2, KeyEvent.VK_TAB, "VK_TAB"));
+			tKeyMapEntries.add(new KeyMapEntry(3, KeyEvent.VK_ENTER, "VK_ENTER"));
+			tKeyMapEntries.add(new KeyMapEntry(4, KeyEvent.VK_CLEAR, "VK_CLEAR"));
+			tKeyMapEntries.add(new KeyMapEntry(5, KeyEvent.VK_SHIFT, "VK_SHIFT"));
+			tKeyMapEntries.add(new KeyMapEntry(6, KeyEvent.VK_CONTROL, "VK_CONTROL"));
+			tKeyMapEntries.add(new KeyMapEntry(7, KeyEvent.VK_ALT, "VK_ALT"));
+			tKeyMapEntries.add(new KeyMapEntry(8, KeyEvent.VK_PAUSE, "VK_PAUSE"));
+			tKeyMapEntries.add(new KeyMapEntry(9, KeyEvent.VK_CAPS_LOCK, "VK_CAPS_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(10, KeyEvent.VK_ESCAPE, "VK_ESCAPE"));
+			tKeyMapEntries.add(new KeyMapEntry(11, KeyEvent.VK_SPACE, "VK_SPACE"));
+			tKeyMapEntries.add(new KeyMapEntry(12, KeyEvent.VK_PAGE_UP, "VK_PAGE_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(13, KeyEvent.VK_PAGE_DOWN, "VK_PAGE_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(14, KeyEvent.VK_END, "VK_END"));
+			tKeyMapEntries.add(new KeyMapEntry(15, KeyEvent.VK_HOME, "VK_HOME"));
+			tKeyMapEntries.add(new KeyMapEntry(16, KeyEvent.VK_LEFT, "VK_LEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(17, KeyEvent.VK_UP, "VK_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(18, KeyEvent.VK_RIGHT, "VK_RIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(19, KeyEvent.VK_DOWN, "VK_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(20, KeyEvent.VK_COMMA, "VK_COMMA"));
+			tKeyMapEntries.add(new KeyMapEntry(21, KeyEvent.VK_MINUS, "VK_MINUS"));
+			tKeyMapEntries.add(new KeyMapEntry(22, KeyEvent.VK_PERIOD, "VK_PERIOD"));
+			tKeyMapEntries.add(new KeyMapEntry(23, KeyEvent.VK_SLASH, "VK_SLASH"));
+			// reserved                        24 
+			tKeyMapEntries.add(new KeyMapEntry(25, KeyEvent.VK_0, "VK_0"));
+			tKeyMapEntries.add(new KeyMapEntry(26, KeyEvent.VK_1, "VK_1"));
+			tKeyMapEntries.add(new KeyMapEntry(27, KeyEvent.VK_2, "VK_2"));
+			tKeyMapEntries.add(new KeyMapEntry(28, KeyEvent.VK_3, "VK_3"));
+			tKeyMapEntries.add(new KeyMapEntry(29, KeyEvent.VK_4, "VK_4"));
+			tKeyMapEntries.add(new KeyMapEntry(30, KeyEvent.VK_5, "VK_5"));
+			tKeyMapEntries.add(new KeyMapEntry(31, KeyEvent.VK_6, "VK_6"));
+			tKeyMapEntries.add(new KeyMapEntry(32, KeyEvent.VK_7, "VK_7"));
+			tKeyMapEntries.add(new KeyMapEntry(33, KeyEvent.VK_8, "VK_8"));
+			tKeyMapEntries.add(new KeyMapEntry(34, KeyEvent.VK_9, "VK_9"));
+			tKeyMapEntries.add(new KeyMapEntry(35, KeyEvent.VK_SEMICOLON, "VK_SEMICOLON"));
+			tKeyMapEntries.add(new KeyMapEntry(36, KeyEvent.VK_EQUALS, "VK_EQUALS"));
+			tKeyMapEntries.add(new KeyMapEntry(37, KeyEvent.VK_A, "VK_A"));
+			tKeyMapEntries.add(new KeyMapEntry(38, KeyEvent.VK_B, "VK_B"));
+			tKeyMapEntries.add(new KeyMapEntry(39, KeyEvent.VK_C, "VK_C"));
+			tKeyMapEntries.add(new KeyMapEntry(40, KeyEvent.VK_D, "VK_D"));
+			tKeyMapEntries.add(new KeyMapEntry(41, KeyEvent.VK_E, "VK_E"));
+			tKeyMapEntries.add(new KeyMapEntry(42, KeyEvent.VK_F, "VK_F"));
+			tKeyMapEntries.add(new KeyMapEntry(43, KeyEvent.VK_G, "VK_G"));
+			tKeyMapEntries.add(new KeyMapEntry(44, KeyEvent.VK_H, "VK_H"));
+			tKeyMapEntries.add(new KeyMapEntry(45, KeyEvent.VK_I, "VK_I"));
+			tKeyMapEntries.add(new KeyMapEntry(46, KeyEvent.VK_J, "VK_J"));
+			tKeyMapEntries.add(new KeyMapEntry(47, KeyEvent.VK_K, "VK_K"));
+			// reserved                        48 
+			tKeyMapEntries.add(new KeyMapEntry(49, KeyEvent.VK_L, "VK_L"));
+			tKeyMapEntries.add(new KeyMapEntry(50, KeyEvent.VK_M, "VK_M"));
+			tKeyMapEntries.add(new KeyMapEntry(51, KeyEvent.VK_N, "VK_N"));
+			tKeyMapEntries.add(new KeyMapEntry(52, KeyEvent.VK_O, "VK_O"));
+			tKeyMapEntries.add(new KeyMapEntry(53, KeyEvent.VK_P, "VK_P"));
+			tKeyMapEntries.add(new KeyMapEntry(54, KeyEvent.VK_Q, "VK_Q"));
+			tKeyMapEntries.add(new KeyMapEntry(55, KeyEvent.VK_R, "VK_R"));
+			tKeyMapEntries.add(new KeyMapEntry(56, KeyEvent.VK_S, "VK_S"));
+			tKeyMapEntries.add(new KeyMapEntry(57, KeyEvent.VK_T, "VK_T"));
+			tKeyMapEntries.add(new KeyMapEntry(58, KeyEvent.VK_U, "VK_U"));
+			tKeyMapEntries.add(new KeyMapEntry(59, KeyEvent.VK_V, "VK_V"));
+			tKeyMapEntries.add(new KeyMapEntry(60, KeyEvent.VK_W, "VK_W"));
+			tKeyMapEntries.add(new KeyMapEntry(61, KeyEvent.VK_X, "VK_X"));
+			tKeyMapEntries.add(new KeyMapEntry(62, KeyEvent.VK_Y, "VK_Y"));
+			tKeyMapEntries.add(new KeyMapEntry(63, KeyEvent.VK_Z, "VK_Z"));
+			tKeyMapEntries.add(new KeyMapEntry(64, KeyEvent.VK_OPEN_BRACKET, "VK_OPEN_BRACKET"));
+			tKeyMapEntries.add(new KeyMapEntry(65, KeyEvent.VK_BACK_SLASH, "VK_BACK_SLASH"));
+			tKeyMapEntries.add(new KeyMapEntry(66, KeyEvent.VK_CLOSE_BRACKET, "VK_CLOSE_BRACKET"));
+			tKeyMapEntries.add(new KeyMapEntry(67, KeyEvent.VK_NUMPAD0, "VK_NUMPAD0"));
+			tKeyMapEntries.add(new KeyMapEntry(68, KeyEvent.VK_NUMPAD1, "VK_NUMPAD1"));
+			tKeyMapEntries.add(new KeyMapEntry(69, KeyEvent.VK_NUMPAD2, "VK_NUMPAD2"));
+			tKeyMapEntries.add(new KeyMapEntry(70, KeyEvent.VK_NUMPAD3, "VK_NUMPAD3"));
+			tKeyMapEntries.add(new KeyMapEntry(71, KeyEvent.VK_NUMPAD4, "VK_NUMPAD4"));
+			// reserved                        72 
+			tKeyMapEntries.add(new KeyMapEntry(73, KeyEvent.VK_NUMPAD5, "VK_NUMPAD5"));
+			tKeyMapEntries.add(new KeyMapEntry(74, KeyEvent.VK_NUMPAD6, "VK_NUMPAD6"));
+			tKeyMapEntries.add(new KeyMapEntry(75, KeyEvent.VK_NUMPAD7, "VK_NUMPAD7"));
+			tKeyMapEntries.add(new KeyMapEntry(76, KeyEvent.VK_NUMPAD8, "VK_NUMPAD8"));
+			tKeyMapEntries.add(new KeyMapEntry(77, KeyEvent.VK_NUMPAD9, "VK_NUMPAD9"));
+			tKeyMapEntries.add(new KeyMapEntry(78, KeyEvent.VK_MULTIPLY, "VK_MULTIPLY"));
+			tKeyMapEntries.add(new KeyMapEntry(79, KeyEvent.VK_ADD, "VK_ADD"));
+			tKeyMapEntries.add(new KeyMapEntry(80, KeyEvent.VK_SEPARATER, "VK_SEPARATER"));
+			tKeyMapEntries.add(new KeyMapEntry(81, KeyEvent.VK_SEPARATOR, "VK_SEPARATOR"));
+			tKeyMapEntries.add(new KeyMapEntry(82, KeyEvent.VK_SUBTRACT, "VK_SUBTRACT"));
+			tKeyMapEntries.add(new KeyMapEntry(83, KeyEvent.VK_DECIMAL, "VK_DECIMAL"));
+			tKeyMapEntries.add(new KeyMapEntry(84, KeyEvent.VK_DIVIDE, "VK_DIVIDE"));
+			tKeyMapEntries.add(new KeyMapEntry(85, KeyEvent.VK_F1, "VK_F1"));
+			tKeyMapEntries.add(new KeyMapEntry(86, KeyEvent.VK_F2, "VK_F2"));
+			tKeyMapEntries.add(new KeyMapEntry(87, KeyEvent.VK_F3, "VK_F3"));
+			tKeyMapEntries.add(new KeyMapEntry(88, KeyEvent.VK_F4, "VK_F4"));
+			tKeyMapEntries.add(new KeyMapEntry(89, KeyEvent.VK_F5, "VK_F5"));
+			tKeyMapEntries.add(new KeyMapEntry(90, KeyEvent.VK_F6, "VK_F6"));
+			tKeyMapEntries.add(new KeyMapEntry(91, KeyEvent.VK_F7, "VK_F7"));
+			tKeyMapEntries.add(new KeyMapEntry(92, KeyEvent.VK_F8, "VK_F8"));
+			tKeyMapEntries.add(new KeyMapEntry(93, KeyEvent.VK_F9, "VK_F9"));
+			tKeyMapEntries.add(new KeyMapEntry(94, KeyEvent.VK_F10, "VK_F10"));
+			tKeyMapEntries.add(new KeyMapEntry(95, KeyEvent.VK_F11, "VK_F11"));
+			// reserved                        96 
+			tKeyMapEntries.add(new KeyMapEntry(97, KeyEvent.VK_F12, "VK_F12"));
+			tKeyMapEntries.add(new KeyMapEntry(98, KeyEvent.VK_DELETE, "VK_DELETE"));
+			tKeyMapEntries.add(new KeyMapEntry(99, KeyEvent.VK_NUM_LOCK, "VK_NUM_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(100, KeyEvent.VK_SCROLL_LOCK, "VK_SCROLL_LOCK"));
+			tKeyMapEntries.add(new KeyMapEntry(101, KeyEvent.VK_AMPERSAND, "VK_AMPERSAND"));
+			tKeyMapEntries.add(new KeyMapEntry(102, KeyEvent.VK_ASTERISK, "VK_ASTERISK"));
+			tKeyMapEntries.add(new KeyMapEntry(103, KeyEvent.VK_QUOTEDBL, "VK_QUOTEDBL"));
+			tKeyMapEntries.add(new KeyMapEntry(104, KeyEvent.VK_LESS, "VK_LESS"));
+			tKeyMapEntries.add(new KeyMapEntry(105, KeyEvent.VK_PRINTSCREEN, "VK_PRINTSCREEN"));
+			tKeyMapEntries.add(new KeyMapEntry(106, KeyEvent.VK_INSERT, "VK_INSERT"));
+			tKeyMapEntries.add(new KeyMapEntry(107, KeyEvent.VK_GREATER, "VK_GREATER"));
+			tKeyMapEntries.add(new KeyMapEntry(108, KeyEvent.VK_BRACELEFT, "VK_BRACELEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(109, KeyEvent.VK_BRACERIGHT, "VK_BRACERIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(110, KeyEvent.VK_BACK_QUOTE, "VK_BACK_QUOTE"));
+			tKeyMapEntries.add(new KeyMapEntry(111, KeyEvent.VK_QUOTE, "VK_QUOTE"));
+			tKeyMapEntries.add(new KeyMapEntry(112, KeyEvent.VK_KP_UP, "VK_KP_UP"));
+			tKeyMapEntries.add(new KeyMapEntry(113, KeyEvent.VK_KP_DOWN, "VK_KP_DOWN"));
+			tKeyMapEntries.add(new KeyMapEntry(114, KeyEvent.VK_KP_LEFT, "VK_KP_LEFT"));
+			tKeyMapEntries.add(new KeyMapEntry(115, KeyEvent.VK_KP_RIGHT, "VK_KP_RIGHT"));
+			tKeyMapEntries.add(new KeyMapEntry(116, KeyEvent.VK_WINDOWS, "VK_WINDOWS"));
+			tMouseMapEntries.add(new MouseMapEntry(117, 1, "VM_BTN_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(118, 2, "VM_BTN_MIDDLE"));
+			tMouseMapEntries.add(new MouseMapEntry(119, 3, "VM_BTN_RIGHT"));
+			// reserved                        120
+			tMouseMapEntries.add(new MouseMapEntry(121, 4, "VM_WHEEL_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(122, 5, "VM_WHEEL_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(123, 6, "VM_MOVE_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(124, 7, "VM_MOVE_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(125, 8, "VM_MOVE_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(126, 9, "VM_MOVE_RIGHT"));
+			tMouseMapEntries.add(new MouseMapEntry(127, 10, "VM_MOVE_10_UP"));
+			tMouseMapEntries.add(new MouseMapEntry(128, 11, "VM_MOVE_10_DOWN"));
+			tMouseMapEntries.add(new MouseMapEntry(129, 12, "VM_MOVE_10_LEFT"));
+			tMouseMapEntries.add(new MouseMapEntry(130, 13, "VM_MOVE_10_RIGHT"));
+
 		}
 		{
 			for (int i = 0; i < cntDataPixels * 24; i++)
@@ -381,120 +388,232 @@ public class PixelsToKeys extends JFrame {
 			Collections.sort(tUnknownMapEntries);
 			tUnknownMapEntries.removeAll(tKnownMap);
 		}
+	}
 
+	private static void fillArrFromBuffer(BufferedImage tmpcap, int[] aRGB) {
+		int x = 0;
+		for (int i : aRGB)
+			aRGB[x] = tmpcap.getRGB(x++, 0);
 	}
 
 	static Runnable taskPressKeys = () -> {
 		try {
-			long cycleEndTime = System.currentTimeMillis(), cycleBeginTime = cycleEndTime, cycleTotTime = cycleEndTime - cycleBeginTime;
 			Robot robot = new Robot();
-			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
-			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
-			int cntConsistent = 0;
-			long extralogtime = -1; // remove
-			String txt = "";
-			String curPxBinString = "", prvPxBinString = curPxBinString;
-			ArrayList<String> tPreviousInds = new ArrayList<>();
-			while (true) {
-				cycleBeginTime = System.currentTimeMillis();
-				tmpcap = robot.createScreenCapture(rect);
-				int rgb0 = tmpcap.getRGB(0, 0);
-				int rgb1 = tmpcap.getRGB(1, 0);
-				int rgb2 = tmpcap.getRGB(2, 0);
-				int rgb3 = tmpcap.getRGB(3, 0);
-				int rgb4 = tmpcap.getRGB(4, 0);
-				int rgb5 = tmpcap.getRGB(5, 0);
-				int rgb6 = tmpcap.getRGB(6, 0);
-				int rgb7 = tmpcap.getRGB(7, 0);
-				curPxBinString = Integer.toBinaryString(rgb1).substring(8)//
-						+ Integer.toBinaryString(rgb2).substring(8)//
-						+ Integer.toBinaryString(rgb3).substring(8)//
-						+ Integer.toBinaryString(rgb4).substring(8)//
-						+ Integer.toBinaryString(rgb5).substring(8)//
-						+ Integer.toBinaryString(rgb6).substring(8);
-				//String showthis = Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7);
-				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
-				while (tPreviousInds.size() > 10)
-					tPreviousInds.remove(0);
-				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
-				if (rgb0 == constantPixel & rgb7 == constantEndPixel) { // Once we've had both constants AND all 0 for 10 checks, we can start looking for pixels.
-					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
-					else if (rgb2 == rgb1 & rgb3 == rgb1 & rgb4 == rgb1 & rgb5 == rgb1 & rgb6 == rgb1) { // faceroll check
-						// reset the constant counter if all are off 0 by the same amount
-						for (String prvTxt : tPreviousInds)
-							spLogd(prvTxt);
-						spLog("All are off 0 by the same amount. Releasing all and resetting.");
-						cntConsistent = 0;
-					}
-				} else cntConsistent = 0;
-				char[] aCurPx = curPxBinString.toCharArray();
+			Rectangle rect = new Rectangle(0, 0, 20, 1); // x, y, width, height
+			int[] aRGB = new int[20];
+			int cntConsistentNeeded = 10;
+			//BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
+			fillArrFromBuffer(robot.createScreenCapture(rect), aRGB); // takes about 15ms / operates at roughly 58fps
+			String strout = " ", stroutprv = " ";
+			spLog(" constantPixel " + Integer.toHexString(constantPixel));
+			spLog(" constantEndPixel " + Integer.toHexString(constantEndPixel));
+			int clearOdd = -8388608, clearEven = -16777216;
+			int[] aLocPx = new int[6], aClear = { clearOdd, clearEven, clearOdd, clearEven, clearOdd, clearEven };
+			int locConstBeg = 0, locConstEnd = 0;
 
-				if (cntConsistent > 10) { // faceroll check
-					for (Integer unkIdx : tUnknownMapEntries) {
-						if (aCurPx[unkIdx] == PRESSED) {
-							for (String prvTxt : tPreviousInds)
-								spLogd(prvTxt);
-							spLog("Unknown Index " + unkIdx + " is set. Releasing all and resetting.");
-							cntConsistent = 0;
+			while (true) {
+				spLog(" FINDME find begin and end");
+				int locFindBeg = 0, locFindEnd = 0, cntConsistent = 0;
+				// find begin and end points
+				while (locFindEnd == 0) {
+					for (int x = 0; x < aRGB.length; x++) {
+						if (aRGB[x] == constantPixel) locFindBeg = x;
+						if (aRGB[locFindBeg] == constantPixel & aRGB[x] == constantEndPixel) locFindEnd = x;
+						if (aRGB[locFindBeg] == constantPixel & aRGB[locFindEnd] == constantEndPixel) {
+							if (locConstBeg != locFindBeg | locConstEnd != locFindEnd) {
+								locConstBeg = locFindBeg;
+								locConstEnd = locFindEnd;
+								aLocPx = new int[6];
+							}
+							break;
 						}
 					}
+					fillArrFromBuffer(robot.createScreenCapture(rect), aRGB);
 				}
-				if (cntConsistent > 10) { // faceroll check
-					int cntKeysSet = 0;
-					for (char c : aCurPx)
-						if (c == PRESSED) cntKeysSet++;
-					if (cntKeysSet >= 5) {
-						for (String prvTxt : tPreviousInds)
-							spLogd(prvTxt);
-						spLog("Too many indicators set (" + cntKeysSet + "). Releasing all and resetting.");
-						cntConsistent = 0;
-					}
-				}
-				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
-					//spLogd(showthis);
-					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
-					"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
-					" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
-					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
-					extralogtime = System.currentTimeMillis() + 100;
-				}
+				spLog(" FINDME found begin and end");
 
-				if (cntConsistent > 10) {
-					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
+				// sync first instance of baseline
+				while (aRGB[locConstBeg] == constantPixel & aRGB[locConstEnd] == constantEndPixel & aLocPx[aLocPx.length - 1] != locConstEnd - 1) {
+					int i = 0;
+					for (int x = locConstBeg + 1; x < locConstEnd; x++) {
+						if (aRGB[x] != aRGB[x + 1] & aRGB[x] == aClear[i]) aLocPx[i++] = x;
+						if (i >= aLocPx.length) break;
+					}
+					fillArrFromBuffer(robot.createScreenCapture(rect), aRGB);
+				}
+				spLog(" FINDME locConstBeg:" + locConstBeg + " locConstEnd:" + locConstEnd + " locations:" + Arrays.toString(aLocPx));
+				spLog(" FINDME pixel locations all established");
+
+				// wait for no commands to establish baseline
+				while (aRGB[locConstBeg] == constantPixel & aRGB[locConstEnd] == constantEndPixel & cntConsistent < cntConsistentNeeded) {
+					int i = 0, cntClear = 0;
+					for (int x : aLocPx)
+						if (aRGB[x] == aClear[i++]) cntClear++;
+					if (cntClear == aLocPx.length) cntConsistent++;
+					else cntConsistent = 0;
+					spLog(" FINDME cntClear:" + cntClear + " cntConsistent:" + cntConsistent);
+					fillArrFromBuffer(robot.createScreenCapture(rect), aRGB);
+				}
+				if (cntConsistent >= cntConsistentNeeded) spLog(" FINDME reached " + cntConsistentNeeded + " empty command calls");
+
+				String curPxBinString = "", prvPxBinString = curPxBinString;
+				// watch for commands
+				while (aRGB[locConstBeg] == constantPixel & aRGB[locConstEnd] == constantEndPixel & cntConsistent >= cntConsistentNeeded) {
+					if (doLogFile) {
+						strout = Integer.toHexString(aRGB[locConstBeg]) + " ";
+						for (int x = locConstBeg + 1; x < locConstEnd; x++) {
+							strout += " " + Integer.toBinaryString(aRGB[x]).substring(8 + 1); // ignore the even/odd indicator for this particular display
+						}
+						strout += " " + Integer.toHexString(aRGB[locConstEnd]);
+						if (!stroutprv.equalsIgnoreCase(strout)) spLogd(strout);
+						stroutprv = strout;
+					}
+					long cycleBeginTime = System.currentTimeMillis();
+					//String txt = "";
+					curPxBinString = Integer.toBinaryString(aRGB[aLocPx[0]]).substring(8)//
+							+ Integer.toBinaryString(aRGB[aLocPx[1]]).substring(8)//
+							+ Integer.toBinaryString(aRGB[aLocPx[2]]).substring(8)//
+							+ Integer.toBinaryString(aRGB[aLocPx[3]]).substring(8)//
+							+ Integer.toBinaryString(aRGB[aLocPx[4]]).substring(8)//
+							+ Integer.toBinaryString(aRGB[aLocPx[5]]).substring(8);
+					char[] aCurPx = curPxBinString.toCharArray();
 					if (!curPxBinString.equals(prvPxBinString)) {
-						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
-						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
-						txt += "\t" + "px1Bin:" + curPxBinString;
 						for (KeyMapEntry pme : tKeyMapEntries) {
-							txt += pme.reportIfChanged(aCurPx);
-							pme.performIfChanged(aCurPx, robot);
-							//	{
-							//		char cur = aCurPx[pme.idx];
-							//		if (pme.prvState == RELEASED & cur == PRESSED) robot.keyPress(pme.keycode);
-							//		else if (pme.prvState == PRESSED & cur == RELEASED) robot.keyRelease(pme.keycode);
-							//		pme.prvState = cur;
-							//	}
+							//txt += pme.reportIfChanged(aCurPx);
+							if (doKeys) pme.performIfChanged(aCurPx, robot);
 							pme.prvState = aCurPx[pme.idx];
 						}
 						for (MouseMapEntry pme : tMouseMapEntries) {
-							txt += pme.reportIfChanged(aCurPx);
-							pme.performIfChanged(aCurPx, robot);
+							//txt += pme.reportIfChanged(aCurPx);
+							if (doKeys) pme.performIfChanged(aCurPx, robot);
 							pme.prvState = aCurPx[pme.idx];
 						}
-						txt += "\t" + "cycle:" + (System.currentTimeMillis() - cycleBeginTime);
-						//spLogd(new StringBuilder().append(cycleTotTime).append(") ").append(txt).toString());
-						spLog(txt);
-						prvPxBinString = curPxBinString;
+						//spLogd(new StringBuilder().append(System.currentTimeMillis() - cycleBeginTime).append(") ").append(txt).toString());
+						//spLog(txt);
 					}
+					prvPxBinString = curPxBinString;
 
-				} else releaseAll();
-				cycleEndTime = System.currentTimeMillis();
-				cycleTotTime = cycleEndTime - cycleBeginTime;
-				if (cycleTotTime < loopMinTime) Thread.sleep(loopMinTime - cycleTotTime);
+					Thread.sleep(1);
+					fillArrFromBuffer(robot.createScreenCapture(rect), aRGB);
+				}
+				spLog(" FINDME lost begin/end");
+				releaseAll();
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		//		try {
+		//			long cycleEndTime = System.currentTimeMillis(), cycleBeginTime = cycleEndTime, cycleTotTime = cycleEndTime - cycleBeginTime;
+		//			Robot robot = new Robot();
+		//			Rectangle rect = new Rectangle(constantLocX, constantLocY, 10, 1); // x, y, width, height
+		//			BufferedImage tmpcap = robot.createScreenCapture(rect); // takes about 15ms / operates at roughly 58fps
+		//			int cntConsistent = 0;
+		//			long extralogtime = -1; // remove
+		//			String txt = "";
+		//			String curPxBinString = "", prvPxBinString = curPxBinString;
+		//			ArrayList<String> tPreviousInds = new ArrayList<>();
+		//			while (true) {
+		//				cycleBeginTime = System.currentTimeMillis();
+		//				tmpcap = robot.createScreenCapture(rect);
+		//				int rgb0 = tmpcap.getRGB(0, 0);
+		//				int rgb1 = tmpcap.getRGB(1, 0);
+		//				int rgb2 = tmpcap.getRGB(2, 0);
+		//				int rgb3 = tmpcap.getRGB(3, 0);
+		//				int rgb4 = tmpcap.getRGB(4, 0);
+		//				int rgb5 = tmpcap.getRGB(5, 0);
+		//				int rgb6 = tmpcap.getRGB(6, 0);
+		//				int rgb7 = tmpcap.getRGB(7, 0);
+		//				curPxBinString = Integer.toBinaryString(rgb1).substring(8)//
+		//						+ Integer.toBinaryString(rgb2).substring(8)//
+		//						+ Integer.toBinaryString(rgb3).substring(8)//
+		//						+ Integer.toBinaryString(rgb4).substring(8)//
+		//						+ Integer.toBinaryString(rgb5).substring(8)//
+		//						+ Integer.toBinaryString(rgb6).substring(8);
+		//				//String showthis = Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7);
+		//				tPreviousInds.add(Integer.toHexString(rgb0) + " " + curPxBinString + " " + Integer.toHexString(rgb7));
+		//				while (tPreviousInds.size() > 10)
+		//					tPreviousInds.remove(0);
+		//				//spLog("constantPixel:" + constantPixel + " rgb0:" + rgb0);
+		//				if (rgb0 == constantPixel & rgb7 == constantEndPixel) { // Once we've had both constants AND all 0 for 10 checks, we can start looking for pixels.
+		//					if ((rgb1 + rgb2 + rgb3 + rgb4 + rgb5 + rgb6) == -100663296) cntConsistent++;
+		//					else if (rgb2 == rgb1 & rgb3 == rgb1 & rgb4 == rgb1 & rgb5 == rgb1 & rgb6 == rgb1) { // faceroll check
+		//						// reset the constant counter if all are off 0 by the same amount
+		//						for (String prvTxt : tPreviousInds)
+		//							spLogd(prvTxt);
+		//						spLog("All are off 0 by the same amount. Releasing all and resetting.");
+		//						cntConsistent = 0;
+		//					}
+		//				} else cntConsistent = 0;
+		//				char[] aCurPx = curPxBinString.toCharArray();
+		//
+		//				if (cntConsistent > 10) { // faceroll check
+		//					for (Integer unkIdx : tUnknownMapEntries) {
+		//						if (aCurPx[unkIdx] == PRESSED) {
+		//							for (String prvTxt : tPreviousInds)
+		//								spLogd(prvTxt);
+		//							spLog("Unknown Index " + unkIdx + " is set. Releasing all and resetting.");
+		//							cntConsistent = 0;
+		//						}
+		//					}
+		//				}
+		//				if (cntConsistent > 10) { // faceroll check
+		//					int cntKeysSet = 0;
+		//					for (char c : aCurPx)
+		//						if (c == PRESSED) cntKeysSet++;
+		//					if (cntKeysSet >= 5) {
+		//						for (String prvTxt : tPreviousInds)
+		//							spLogd(prvTxt);
+		//						spLog("Too many indicators set (" + cntKeysSet + "). Releasing all and resetting.");
+		//						cntConsistent = 0;
+		//					}
+		//				}
+		//				if (extralogtime != -1 & cycleBeginTime > extralogtime) { // remove
+		//					//spLogd(showthis);
+		//					spLogd("constantPixel:" + constantPixel + " rgb0:" + rgb0 + //
+		//					"constantEndPixel:" + constantEndPixel + " rgbEnd:" + rgb7 + //
+		//					" rgb0Hex:" + Integer.toHexString(rgb0) + " rgb1:" + Integer.toBinaryString(tmpcap.getRGB(1, 0)).substring(8) + " rgb2:" + Integer.toBinaryString(tmpcap.getRGB(2, 0)).substring(8));
+		//					spLogd("curPxBinString.toCharArray:" + Arrays.toString(curPxBinString.toCharArray()));
+		//					extralogtime = System.currentTimeMillis() + 100;
+		//				}
+		//
+		//				if (cntConsistent > 10) {
+		//					if (prvPxBinString.isEmpty()) prvPxBinString = curPxBinString; // ignore the initial state
+		//					if (!curPxBinString.equals(prvPxBinString)) {
+		//						txt = "\t" + "px0Hex:" + Integer.toHexString(rgb0);
+		//						txt += "\t" + "px7Hex:" + Integer.toHexString(rgb7);
+		//						txt += "\t" + "px1Bin:" + curPxBinString;
+		//						for (KeyMapEntry pme : tKeyMapEntries) {
+		//							txt += pme.reportIfChanged(aCurPx);
+		//							pme.performIfChanged(aCurPx, robot);
+		//							//	{
+		//							//		char cur = aCurPx[pme.idx];
+		//							//		if (pme.prvState == RELEASED & cur == PRESSED) robot.keyPress(pme.keycode);
+		//							//		else if (pme.prvState == PRESSED & cur == RELEASED) robot.keyRelease(pme.keycode);
+		//							//		pme.prvState = cur;
+		//							//	}
+		//							pme.prvState = aCurPx[pme.idx];
+		//						}
+		//						for (MouseMapEntry pme : tMouseMapEntries) {
+		//							txt += pme.reportIfChanged(aCurPx);
+		//							pme.performIfChanged(aCurPx, robot);
+		//							pme.prvState = aCurPx[pme.idx];
+		//						}
+		//						txt += "\t" + "cycle:" + (System.currentTimeMillis() - cycleBeginTime);
+		//						//spLogd(new StringBuilder().append(cycleTotTime).append(") ").append(txt).toString());
+		//						spLog(txt);
+		//						prvPxBinString = curPxBinString;
+		//					}
+		//
+		//				} else releaseAll();
+		//				cycleEndTime = System.currentTimeMillis();
+		//				cycleTotTime = cycleEndTime - cycleBeginTime;
+		//				if (cycleTotTime < loopMinTime) Thread.sleep(loopMinTime - cycleTotTime);
+		//			}
+		//		} catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
 	};
 
 	static Runnable taskMouseMove = () -> {
@@ -560,7 +679,7 @@ public class PixelsToKeys extends JFrame {
 				} catch (Exception e) {
 					spLog("Unable to set LookAndFeel");
 				}
-				
+
 				if (SystemTray.isSupported()) {
 					spLog("SystemTray.isSupported():" + SystemTray.isSupported());
 					tray = SystemTray.getSystemTray();
@@ -597,40 +716,40 @@ public class PixelsToKeys extends JFrame {
 				addWindowStateListener(new WindowStateListener() {
 					public void windowStateChanged(WindowEvent e) {
 						// TMPBRI I can't get this to show the window and be able to hide. 
-						spLog("windowStateChanged getNewState():"+e.getNewState());
+						spLog("windowStateChanged getNewState():" + e.getNewState());
 						if (e.getNewState() == ICONIFIED) {
-//							try {
-//								tray.add(trayIcon);
-//								spLog("added to SystemTray");
-//							} catch (AWTException ex) {
-//								spLog("unable to add to tray");
-//							}
-//							setVisible(false);
+							//							try {
+							//								tray.add(trayIcon);
+							//								spLog("added to SystemTray");
+							//							} catch (AWTException ex) {
+							//								spLog("unable to add to tray");
+							//							}
+							//							setVisible(false);
 						}
 						if (e.getNewState() == 7) {
-//							try {
-//								tray.add(trayIcon);
-//								spLog("added to SystemTray");
-//							} catch (AWTException ex) {
-//								spLog("unable to add to system tray");
-//							}
-//							setVisible(false);
+							//							try {
+							//								tray.add(trayIcon);
+							//								spLog("added to SystemTray");
+							//							} catch (AWTException ex) {
+							//								spLog("unable to add to system tray");
+							//							}
+							//							setVisible(false);
 						}
 						if (e.getNewState() == MAXIMIZED_BOTH) {
-//							tray.remove(trayIcon);
-//							spLog("Tray icon removed");
-//							setVisible(true);
+							//							tray.remove(trayIcon);
+							//							spLog("Tray icon removed");
+							//							setVisible(true);
 						}
 						if (e.getNewState() == NORMAL) {
-//							tray.remove(trayIcon);
-//							spLog("Tray icon removed");
-//							setVisible(true);
+							//							tray.remove(trayIcon);
+							//							spLog("Tray icon removed");
+							//							setVisible(true);
 						}
 					}
 				});
 				setIconImage(iconImage);
 
-								setVisible(true);
+				setVisible(true);
 				//				setSize(300, 200);
 				//				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
